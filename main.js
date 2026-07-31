@@ -5,18 +5,13 @@
  * sprinkled through each module — and so the page adapts live if the user
  * flips their OS motion setting mid-session.
  *
- * This file is loaded as `<script type="module" src="./js/main.js">`, and
+ * This file is loaded as `<script type="module" src="./main.js">`, and
  * everything it imports is a plain ESM module — no bundler required, but
  * that also means the page must be served over http(s) (a local static
  * server is enough); browsers block `type="module"` imports over file://.
  * @module main
  */
 
-import { initSmoothScroll } from './core/smooth-scroll.js';
-import { initScrollMatrix } from './core/scroll-matrix.js';
-import { initPointerParallax } from './core/pointer-parallax.js';
-import { initTextReveal } from './core/text-reveal.js';
-import { initPrism } from './components/prism.js';
 import { initSmoothScroll } from './smooth-scroll.js';
 import { initScrollMatrix } from './scroll-matrix.js';
 import { initPointerParallax } from './pointer-parallax.js';
