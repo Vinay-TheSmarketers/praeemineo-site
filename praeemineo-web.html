@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Praeemineo — SAP transformation and RISE with SAP consulting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root{
+    --ink:#0B0E13;
+    --ink-2:#12151C;
+    --paper:#F3EFE6;
+    --paper-dim:#E7E1D2;
+    --cobalt:#3355FF;
+    --cobalt-bright:#5C7CFF;
+    --brass:#B08D3F;
+    --graphite:#8890A0;
+    --slate:#2A2F3A;
+    --ink-on-paper:#14171D;
+    --serif: 'Fraunces', serif;
+    --sans: 'Inter', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--cobalt); color:#fff; }
+  :focus-visible{ outline:2px solid var(--cobalt-bright); outline-offset:3px; }
+
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 32px; }
+
+  /* ---------- Spine / signature element ---------- */
+  .spine{
+    position:absolute;
+    left:32px;
+    top:0;
+    bottom:0;
+    width:1px;
+    background:linear-gradient(to bottom, transparent, var(--brass) 6%, var(--brass) 94%, transparent);
+    opacity:.55;
+    display:none;
+    z-index:2;
+  }
+  @media(min-width:900px){ .spine{ display:block; } }
+
+  .exhibit{
+    position:relative;
+  }
+  .exhibit-label{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    color:var(--brass);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .exhibit-label::before{
+    content:'';
+    width:16px;
+    height:1px;
+    background:var(--brass);
+  }
+
+  /* ---------- Depth stage: perspective root for multi-axis scroll matrix ---------- */
+  .depth-stage{
+    perspective:1200px;
+    transform-style:preserve-3d;
+  }
+
+  /* ---------- The Prism: persistent 3D brand mark, pinned corner ---------- */
+  .prism-stage{
+    position:fixed;
+    right:28px;
+    bottom:28px;
+    width:84px;
+    height:84px;
+    z-index:60;
+    perspective:900px;
+    pointer-events:none;
+  }
+  @media(max-width:640px){
+    .prism-stage{ width:52px; height:52px; right:16px; bottom:16px; }
+  }
+  .prism{
+    position:relative;
+    width:100%;
+    height:100%;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .prism-face{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    backface-visibility:visible;
+  }
+  .prism-face svg{ width:76%; height:76%; overflow:visible; }
+  .prism-face polygon{
+    fill:rgba(51,85,255,.10);
+    stroke:var(--cobalt-bright);
+    stroke-width:1.4;
+    vector-effect:non-scaling-stroke;
+  }
+  .prism-face.face-top polygon,
+  .prism-face.face-bottom polygon{ stroke:var(--brass); }
+
+  /* ---------- Preloader ---------- */
+  body.loading{ overflow:hidden; height:100vh; }
+  #preloader{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    background:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  #preloader .pl-mark{
+    transform-box:fill-box;
+    transform-origin:center;
+  }
+  .preloader-flash{
+    position:absolute;
+    inset:0;
+    background:#fff;
+    opacity:0;
+    pointer-events:none;
+  }
+  .preloader-word{
+    position:absolute;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.2em;
+    color:var(--graphite);
+    bottom:calc(50% - 120px);
+    opacity:0;
+  }
+  .preloader-pct{
+    position:absolute;
+    bottom:calc(50% - 155px);
+    left:50%;
+    transform:translateX(-50%);
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.1em;
+    color:var(--brass);
+  }
+  .preloader-insights{
+    position:absolute;
+    bottom:calc(50% - 122px);
+    left:50%;
+    transform:translateX(-50%);
+    width:300px;
+    height:16px;
+  }
+  .pl-line{
+    position:absolute;
+    inset:0;
+    text-align:center;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.14em;
+    color:var(--graphite);
+    opacity:0;
+  }
+
+  /* ---------- Fluid hero background ---------- */
+  .hero{ overflow:hidden; }
+  #fluid-canvas{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    display:block;
+  }
+  .hero-veil{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(11,14,19,.25) 0%, rgba(11,14,19,.55) 55%, var(--ink) 100%);
+  }
+  .hero.static-fallback #fluid-canvas{ display:none; }
+  .hero.static-fallback{
+    background:
+      radial-gradient(ellipse 90% 60% at 30% 10%, rgba(51,85,255,.16), transparent 60%),
+      var(--ink);
+  }
+  .hero .wrap{ position:relative; z-index:2; }
+
+  /* ---------- Parallax numeral ---------- */
+  .parallax-num{
+    position:absolute;
+    top:6px;
+    right:32px;
+    font-family:var(--serif);
+    font-size:200px;
+    line-height:1;
+    color:rgba(255,255,255,.035);
+    pointer-events:none;
+    z-index:0;
+    user-select:none;
+  }
+  @media(min-width:900px){ .parallax-num{ right:72px; } }
+
+  /* ---------- Magnetic buttons ---------- */
+  .btn{ position:relative; will-change:transform; }
+  .btn-label{ display:inline-block; will-change:transform; }
+
+  /* ---------- Nav ---------- */
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:rgba(11,14,19,.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--slate);
+  }
+  nav.wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    height:78px;
+  }
+  .logo{
+    font-family:var(--serif);
+    font-size:20px;
+    letter-spacing:.03em;
+    font-weight:500;
+  }
+  .logo span{ color:var(--brass); }
+  .nav-links{
+    display:none;
+    gap:28px;
+    font-size:14px;
+    color:var(--graphite);
+  }
+  @media(min-width:860px){ .nav-links{ display:flex; } }
+  .nav-links a:hover{ color:var(--paper); }
+  .btn{
+    font-family:var(--sans);
+    font-size:14px;
+    font-weight:600;
+    padding:11px 20px;
+    border-radius:2px;
+    display:inline-block;
+    transition:transform .18s ease, background .18s ease, color .18s ease;
+  }
+  .btn-primary{
+    background:var(--cobalt);
+    color:#fff;
+  }
+  .btn-primary:hover{ background:var(--cobalt-bright); }
+  .btn-ghost{
+    border:1px solid var(--slate);
+    color:var(--paper);
+  }
+  .btn-ghost:hover{ border-color:var(--brass); color:var(--brass); }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:120px 0 100px;
+    position:relative;
+  }
+  .hero .wrap{ padding-left:32px; }
+  @media(min-width:900px){ .hero .wrap{ padding-left:72px; } }
+
+  .kicker{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.14em;
+    color:var(--brass);
+    margin-bottom:28px;
+  }
+  h1.headline{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(38px, 6vw, 78px);
+    line-height:1.04;
+    max-width:15ch;
+    letter-spacing:-.01em;
+  }
+  h1.headline em{
+    font-style:italic;
+    font-weight:300;
+    color:var(--graphite);
+  }
+  .hero-sub{
+    max-width:52ch;
+    margin-top:28px;
+    font-size:18px;
+    color:var(--graphite);
+  }
+  .hero-cta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-top:40px;
+  }
+  .hero-meta{
+    margin-top:64px;
+    display:flex;
+    gap:40px;
+    flex-wrap:wrap;
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--graphite);
+    letter-spacing:.04em;
+  }
+  .hero-meta b{ color:var(--paper); font-family:var(--sans); font-weight:600; display:block; font-size:22px; margin-bottom:4px; }
+
+  /* ---------- Sector strip (marquee) ---------- */
+  .sectors{
+    border-top:1px solid var(--slate);
+    border-bottom:1px solid var(--slate);
+    padding:26px 0;
+    overflow:hidden;
+  }
+  .sectors .wrap{
+    display:flex;
+    gap:40px;
+    align-items:center;
+  }
+  .sectors-label{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--graphite);
+    letter-spacing:.08em;
+    white-space:nowrap;
+    flex:none;
+  }
+  .marquee{
+    overflow:hidden;
+    flex:1;
+    -webkit-mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee-track{
+    display:flex;
+    gap:28px;
+    width:max-content;
+    animation:marquee 26s linear infinite;
+  }
+  .sectors:hover .marquee-track{ animation-play-state:paused; }
+  .marquee-track span{
+    font-size:14px;
+    color:var(--graphite);
+    white-space:nowrap;
+    display:flex;
+    align-items:center;
+    gap:28px;
+  }
+  .marquee-track span::after{
+    content:'';
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:var(--brass);
+    display:inline-block;
+    margin-left:28px;
+  }
+  @keyframes marquee{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
+  }
+
+  /* ---------- Section shell ---------- */
+  section{ padding:110px 0; position:relative; }
+  section .wrap{ padding-left:32px; }
+  @media(min-width:900px){ section .wrap{ padding-left:72px; } }
+
+  .section-head{ max-width:640px; margin-bottom:64px; }
+  h2.section-title{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(28px, 4vw, 42px);
+    line-height:1.15;
+  }
+  .section-desc{
+    color:var(--graphite);
+    margin-top:16px;
+    font-size:16px;
+    max-width:56ch;
+  }
+
+  /* ---------- Two disciplines ---------- */
+  .disciplines{
+    display:grid;
+    gap:1px;
+    background:var(--slate);
+    border:1px solid var(--slate);
+  }
+  @media(min-width:800px){ .disciplines{ grid-template-columns:1fr 1fr; } }
+  .discipline{
+    background:var(--ink);
+    padding:48px 40px;
+    transition:background .25s ease;
+  }
+  .discipline:hover{ background:var(--ink-2); }
+  .discipline .num{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--brass);
+    margin-bottom:22px;
+    display:block;
+  }
+  .discipline h3{
+    font-family:var(--serif);
+    font-size:28px;
+    font-weight:500;
+    margin-bottom:16px;
+  }
+  .discipline p{ color:var(--graphite); font-size:15.5px; max-width:44ch; }
+  .discipline ul{
+    margin-top:24px;
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .discipline li{
+    font-size:14px;
+    color:var(--paper);
+    padding-left:18px;
+    position:relative;
+  }
+  .discipline li::before{
+    content:'';
+    position:absolute;
+    left:0;
+    top:9px;
+    width:8px;
+    height:1px;
+    background:var(--cobalt-bright);
+  }
+
+  /* ---------- Approach: immersive multi-layer parallax ---------- */
+  .approach-parallax{ padding:0; }
+
+  .approach-pin{
+    position:relative;
+  }
+  /* Applied by JS only once the pin/parallax system actually initializes —
+     keeps the section fully visible in normal flow if scripts fail to load. */
+  .approach-pin.pin-ready{
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+  }
+  .approach-layer{
+    position:absolute;
+    inset:0;
+    will-change:transform;
+  }
+  .approach-bg{ z-index:0; }
+  .approach-fg{
+    z-index:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    pointer-events:none;
+  }
+  .approach-content{
+    position:relative;
+    z-index:2;
+    width:100%;
+  }
+
+  /* background depth layer — celestial/texture field, 0.3x */
+  .approach-glow{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:.32;
+  }
+  .approach-glow-a{
+    width:520px; height:520px;
+    background:radial-gradient(circle, rgba(51,85,255,.55), transparent 70%);
+    top:-12%; left:-8%;
+  }
+  .approach-glow-b{
+    width:420px; height:420px;
+    background:radial-gradient(circle, rgba(176,141,63,.4), transparent 70%);
+    bottom:-16%; right:-6%;
+  }
+  .approach-stars{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+  }
+  .approach-stars circle{ fill:var(--paper); }
+
+  /* foreground depth layer — fast element, 0.6x */
+  .approach-ring{
+    width:min(70vw, 600px);
+    height:min(70vw, 600px);
+    opacity:.16;
+  }
+  .approach-ring circle{ fill:none; stroke:var(--brass); stroke-width:1; }
+
+  /* middle depth layer — content */
+  .phase-steps{
+    margin-top:52px;
+    display:flex;
+    flex-direction:column;
+    gap:30px;
+    max-width:640px;
+  }
+  .phase-step{
+    padding-top:26px;
+    border-top:1px solid var(--slate);
+  }
+  .phase-step .tag{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--brass);
+  }
+  .phase-step h4{
+    font-family:var(--serif);
+    font-size:27px;
+    font-weight:500;
+    margin:6px 0 10px;
+  }
+  .phase-step p{ color:var(--graphite); font-size:15px; max-width:52ch; }
+
+  .approach-progress{
+    display:none;
+    margin-top:48px;
+    height:2px;
+    width:220px;
+    background:var(--slate);
+    position:relative;
+    overflow:hidden;
+  }
+  .pin-ready .approach-progress{ display:block; }
+  .approach-progress-fill{
+    position:absolute;
+    inset:0;
+    width:0%;
+    background:var(--cobalt-bright);
+  }
+
+  @media(max-width:899px){
+    .approach-fg{ display:none; }
+  }
+
+  /* ---------- Industries ---------- */
+  .industry-grid{
+    display:grid;
+    gap:1px;
+    background:var(--slate);
+    border:1px solid var(--slate);
+    grid-template-columns:1fr;
+  }
+  @media(min-width:640px){ .industry-grid{ grid-template-columns:1fr 1fr; } }
+  @media(min-width:1000px){ .industry-grid{ grid-template-columns:repeat(4,1fr); } }
+  .industry-card{
+    background:var(--ink);
+    padding:32px 26px;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:background .25s ease;
+  }
+  .industry-card:hover{ background:var(--ink-2); }
+  .industry-card::after{
+    content:'';
+    position:absolute;
+    top:0;
+    right:0;
+    width:2px;
+    height:28px;
+    background:var(--cobalt-bright);
+    opacity:.7;
+  }
+  .industry-card h3{
+    font-family:var(--serif);
+    font-size:19px;
+    font-weight:500;
+    margin-bottom:12px;
+    line-height:1.25;
+  }
+  .industry-card p{
+    font-size:14px;
+    color:var(--graphite);
+    line-height:1.5;
+  }
+
+  /* ---------- Methodology: triangle diagram ---------- */
+  .triangle-wrap{
+    position:relative;
+    max-width:520px;
+    margin:0 auto;
+    aspect-ratio:400/380;
+  }
+  .triangle-diagram{ width:100%; height:100%; display:block; overflow:visible; }
+  .triangle-diagram path{
+    fill:none;
+    stroke:var(--slate);
+    stroke-width:1.5;
+  }
+  .triangle-diagram .tri-draw{
+    stroke:var(--brass);
+    stroke-dasharray:1100;
+    stroke-dashoffset:1100;
+  }
+  .tri-vertex, .tri-node, .tri-center{
+    position:absolute;
+    transform:translate(-50%,-50%) scale(.6);
+    opacity:0;
+  }
+  .tri-vertex{
+    background:var(--cobalt);
+    color:#fff;
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:13px;
+    padding:9px 18px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .tri-node{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.04em;
+    color:var(--paper);
+    white-space:nowrap;
+    background:var(--ink);
+  }
+  .tri-node::before{
+    content:'';
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--brass);
+    box-shadow:0 0 8px 1px rgba(176,141,63,.8);
+    flex:none;
+  }
+  .tri-node span{ color:var(--graphite); }
+  .tri-center{
+    width:132px;
+    height:132px;
+    border-radius:50%;
+    border:1px solid var(--slate);
+    background:var(--ink-2);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.06em;
+    color:var(--brass);
+    padding:12px;
+    line-height:1.4;
+  }
+  .tri-side{
+    position:absolute;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    color:var(--graphite);
+  }
+
+  /* ---------- ASCEND method ---------- */
+  .ascend-wrap{ margin-top:120px; }
+  .ascend-head{ max-width:640px; margin-bottom:56px; }
+  .ascend-head .exhibit-label{ margin-bottom:14px; }
+  .ascend-title{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(24px,3.4vw,34px);
+    line-height:1.2;
+  }
+  .ascend-bars{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:22px;
+    perspective:900px;
+    margin-bottom:64px;
+  }
+  .ascend-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:16px;
+  }
+  .ascend-bar{
+    width:52px;
+    height:140px;
+    position:relative;
+    background:linear-gradient(180deg, rgba(51,85,255,.32), rgba(51,85,255,.04) 65%, transparent);
+    border:1px solid rgba(92,124,255,.35);
+    border-radius:2px;
+    transform:rotateY(16deg) rotateX(3deg) scaleY(0);
+    transform-origin:bottom;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    padding-bottom:16px;
+  }
+  .ascend-bar::before{
+    content:'';
+    position:absolute;
+    top:-2px;
+    left:0;
+    right:0;
+    height:3px;
+    background:var(--cobalt-bright);
+    box-shadow:0 0 14px 2px rgba(92,124,255,.75);
+  }
+  .ascend-bar .letter{
+    font-family:var(--serif);
+    font-size:26px;
+    color:var(--paper);
+  }
+  .ascend-item-label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.08em;
+    color:var(--brass);
+    text-align:center;
+  }
+  .ascend-grid{
+    display:grid;
+    gap:1px;
+    background:var(--slate);
+    border:1px solid var(--slate);
+    grid-template-columns:1fr;
+  }
+  @media(min-width:760px){ .ascend-grid{ grid-template-columns:repeat(3,1fr); } }
+  .ascend-card{
+    background:var(--ink);
+    padding:30px 26px;
+  }
+  .ascend-card .letter-tag{
+    font-family:var(--serif);
+    font-size:22px;
+    color:var(--cobalt-bright);
+    margin-right:8px;
+  }
+  .ascend-card h4{
+    display:inline;
+    font-family:var(--sans);
+    font-size:15px;
+    font-weight:600;
+  }
+  .ascend-card p{
+    margin-top:12px;
+    font-size:14px;
+    color:var(--graphite);
+    line-height:1.55;
+  }
+
+  /* ---------- Evidence / editorial cards ---------- */
+  .evidence-grid{
+    display:grid;
+    gap:28px;
+  }
+  @media(min-width:760px){ .evidence-grid{ grid-template-columns:repeat(3,1fr); } }
+  .card{
+    background:var(--paper);
+    color:var(--ink-on-paper);
+    padding:34px 30px;
+    border-radius:2px;
+    display:flex;
+    flex-direction:column;
+    min-height:280px;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .card:hover{ transform:translateY(-4px); box-shadow:0 20px 40px -20px rgba(0,0,0,.5); }
+  .card .tag{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.08em;
+    color:var(--cobalt);
+    margin-bottom:18px;
+  }
+  .card h3{
+    font-family:var(--serif);
+    font-size:22px;
+    font-weight:500;
+    line-height:1.25;
+    margin-bottom:14px;
+  }
+  .card p{ font-size:14.5px; color:#4b4f58; flex:1; }
+  .card .read{
+    margin-top:20px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-on-paper);
+    border-top:1px solid rgba(0,0,0,.12);
+    padding-top:16px;
+  }
+
+  /* ---------- CTA band ---------- */
+  .cta-band{
+    background:var(--paper);
+    color:var(--ink-on-paper);
+    padding:110px 0;
+  }
+  .cta-band .wrap{ padding-left:32px; }
+  @media(min-width:900px){ .cta-band .wrap{ padding-left:72px; } }
+  .cta-band h2{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(30px,5vw,52px);
+    max-width:16ch;
+    line-height:1.08;
+  }
+  .cta-band .btn-primary{ margin-top:0; }
+  .cta-band .hero-cta{ margin-top:36px; }
+  .cta-band .btn-ghost{
+    border-color:rgba(20,23,29,.25);
+    color:var(--ink-on-paper);
+  }
+  .cta-band .btn-ghost:hover{ border-color:var(--cobalt); color:var(--cobalt); }
+  .cta-band .row{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:32px;
+  }
+  .cta-band .side{
+    font-family:var(--mono);
+    font-size:13px;
+    color:#5b5f68;
+    max-width:32ch;
+  }
+
+  /* ---------- Footer ---------- */
+  footer{
+    padding:64px 0 40px;
+    border-top:1px solid var(--slate);
+  }
+  footer .wrap{
+    display:flex;
+    flex-direction:column;
+    gap:44px;
+  }
+  .footer-top{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    gap:40px;
+  }
+  .footer-cols{
+    display:flex;
+    gap:64px;
+    flex-wrap:wrap;
+  }
+  .footer-col h5{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--brass);
+    letter-spacing:.08em;
+    margin-bottom:16px;
+  }
+  .footer-col a{
+    display:block;
+    font-size:14px;
+    color:var(--graphite);
+    margin-bottom:10px;
+  }
+  .footer-col a:hover{ color:var(--paper); }
+  .footer-bottom{
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+    font-size:13px;
+    color:var(--graphite);
+    padding-top:28px;
+    border-top:1px solid var(--slate);
+  }
+
+  /* ---------- Reveal on scroll ---------- */
+  .reveal{
+    opacity:0;
+    transform:translateY(18px);
+    transition:opacity .7s ease, transform .7s ease;
+  }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .reveal{ opacity:1; transform:none; transition:none; }
+    .btn-primary:hover, .card:hover{ transform:none; }
+    #preloader{ display:none !important; }
+    .discipline, .phase{ opacity:1 !important; filter:none !important; transform:none !important; }
+    .tri-vertex, .tri-node, .tri-center{ opacity:1 !important; transform:translate(-50%,-50%) scale(1) !important; }
+    .tri-draw{ stroke-dashoffset:0 !important; }
+    .ascend-bar{ transform:rotateY(16deg) rotateX(3deg) scaleY(1) !important; }
+    .marquee-track{ animation:none; }
+    .approach-pin.pin-ready{ height:auto !important; overflow:visible !important; display:block !important; }
+    .approach-layer{ position:absolute !important; transform:none !important; }
+    .approach-fg, .approach-progress{ display:none !important; }
+    .phase-step{ opacity:1 !important; transform:none !important; }
+
+    /* Cinematic scroll system: strip every X/Z/rotation transform, keep
+       plain opacity/static positioning only. */
+    .prism{ transform:none !important; }
+    .prism-face:not(.face-front){ display:none; }
+    [data-scroll-x], [data-scroll-y], [data-scroll-z], [data-scroll-rotate]{
+      transform:none !important;
+      contain:none !important;
+    }
+    [data-split-reveal] span{ opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body class="loading">
+
+<div class="prism-stage" aria-hidden="true">
+  <div class="prism"></div>
+</div>
+
+<div id="preloader" aria-hidden="true">
+  <svg viewBox="0 0 240 240" width="150" height="150">
+    <g class="pl-lines" stroke="#B08D3F" stroke-width="1" fill="none">
+      <line x1="0" y1="36" x2="240" y2="36"/>
+      <line x1="0" y1="102" x2="240" y2="102"/>
+      <line x1="0" y1="168" x2="240" y2="168"/>
+      <line x1="36" y1="0" x2="36" y2="240"/>
+      <line x1="102" y1="0" x2="102" y2="240"/>
+      <line x1="168" y1="0" x2="168" y2="240"/>
+    </g>
+    <polygon class="pl-mark" points="120,66 174,120 120,174 66,120" fill="none" stroke="#3355FF" stroke-width="1.5"/>
+  </svg>
+  <div class="preloader-pct">00%</div>
+  <div class="preloader-insights">
+    <div class="pl-line">MAPPING LANDSCAPE DEPENDENCIES</div>
+    <div class="pl-line">RECONCILING MASTER DATA OBJECTS</div>
+    <div class="pl-line">ALIGNING TO FIT-TO-STANDARD</div>
+    <div class="pl-line">PROVISIONING MIGRATION WORKSPACE</div>
+  </div>
+  <div class="preloader-flash"></div>
+</div>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">PRAE<span>&middot;</span>EMINEO</div>
+    <div class="nav-links">
+      <a href="#practice">Practice</a>
+      <a href="#industries">Industries</a>
+      <a href="#method">Method</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#contact" class="btn btn-primary">Book a consultation</a>
+  </nav>
+</header>
+
+<main>
+
+  <section class="hero exhibit">
+    <canvas id="fluid-canvas"></canvas>
+    <div class="hero-veil"></div>
+    <div class="spine"></div>
+    <div class="wrap">
+      <div class="kicker">EX. 01 — THESIS</div>
+      <h1 class="headline" data-split-reveal>ECC won't get you to 2030. <em>Neither will a lift-and-shift.</em></h1>
+      <p class="hero-sub">Praeemineo runs S/4HANA and RISE with SAP transformations for organizations that need the migration to also fix the process debt ECC quietly built up for twenty years.</p>
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary">Book a consultation</a>
+        <a href="#approach" class="btn btn-ghost">See how we migrate</a>
+      </div>
+      <div class="hero-meta">
+        <div><b>2027</b>mainstream ECC maintenance ends</div>
+        <div><b>200+</b>S/4HANA go-lives led</div>
+        <div><b>1</b>partner accountable end to end</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sectors">
+    <div class="wrap">
+      <div class="sectors-label">SAP landscapes across</div>
+      <div class="marquee">
+        <div class="marquee-track">
+          <span>Discrete Manufacturing</span>
+          <span>Automotive</span>
+          <span>Chemical &amp; Process</span>
+          <span>CPG &amp; Food and Beverage</span>
+          <span>Life Sciences &amp; Healthcare</span>
+          <span>Retail</span>
+          <span>Wholesale Distribution</span>
+          <span>Utilities &amp; Energy</span>
+          <span>Discrete Manufacturing</span>
+          <span>Automotive</span>
+          <span>Chemical &amp; Process</span>
+          <span>CPG &amp; Food and Beverage</span>
+          <span>Life Sciences &amp; Healthcare</span>
+          <span>Retail</span>
+          <span>Wholesale Distribution</span>
+          <span>Utilities &amp; Energy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="practice" class="exhibit">
+    <div class="spine"></div>
+    <div class="wrap">
+      <div class="exhibit-label">EX. 02 — HOW WE'RE BUILT</div>
+      <div class="section-head reveal">
+        <h2 class="section-title" data-split-reveal>Two disciplines. One accountable team.</h2>
+        <p class="section-desc">System integrators hand you a project plan. Hyperscalers hand you infrastructure. We stay until finance closes the books on the new system without a workaround in sight.</p>
+      </div>
+
+      <div class="disciplines reveal depth-stage">
+        <div class="discipline" data-scroll-x="-50" data-scroll-y="30" data-scroll-z="-40" data-scroll-rotate="-5" data-scroll-rotate-axis="y">
+          <span class="num">01 / PROCESS</span>
+          <h3>The case for what changes</h3>
+          <p>Before a single table converts, we map which processes are riding on twenty years of ECC customization — and which of that customization is actually load-bearing.</p>
+          <ul>
+            <li>Fit-to-standard assessment against SAP Best Practices</li>
+            <li>Custom code and Z-table rationalization</li>
+            <li>Business case tied to RISE with SAP licensing</li>
+          </ul>
+        </div>
+        <div class="discipline" data-scroll-x="50" data-scroll-y="30" data-scroll-z="-40" data-scroll-rotate="5" data-scroll-rotate-axis="y">
+          <span class="num">02 / PLATFORM</span>
+          <h3>The system that stays up</h3>
+          <p>We run the technical migration itself — conversion, cloud landscape, and the integrations that quietly kept ECC alive for two decades.</p>
+          <ul>
+            <li>Brownfield, greenfield, or selective data transition</li>
+            <li>BTP integration and Business AI (Joule) enablement</li>
+            <li>Cutover, hypercare, and managed operations</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="approach" class="exhibit approach-parallax">
+    <div class="approach-pin">
+
+      <div class="approach-layer approach-bg" aria-hidden="true">
+        <div class="approach-glow approach-glow-a"></div>
+        <div class="approach-glow approach-glow-b"></div>
+        <svg class="approach-stars" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice"></svg>
+      </div>
+
+      <div class="approach-layer approach-fg" aria-hidden="true">
+        <svg class="approach-ring" viewBox="0 0 600 600">
+          <circle cx="300" cy="300" r="260"/>
+          <circle cx="300" cy="300" r="200" stroke-dasharray="3 11"/>
+        </svg>
+      </div>
+
+      <div class="approach-layer approach-content">
+        <div class="wrap">
+          <div class="exhibit-label">EX. 03 — APPROACH</div>
+          <div class="section-head">
+            <h2 class="section-title" data-split-reveal>A fixed sequence to S/4HANA — not an open-ended SOW.</h2>
+            <p class="section-desc">Four phases, each with a go/no-go decision at the end. Nothing converts until the phase before it is signed off. Scroll to move through them.</p>
+          </div>
+
+          <div class="phase-steps">
+            <div class="phase-step" data-step="0">
+              <span class="tag">PHASE 01</span>
+              <h4>Assess</h4>
+              <p>A landscape and custom-code audit against your current ECC or S/4HANA environment. We leave with a ranked conversion path and a real cost-to-complete.</p>
+            </div>
+            <div class="phase-step" data-step="1">
+              <span class="tag">PHASE 02</span>
+              <h4>Design</h4>
+              <p>Target architecture on RISE with SAP or GROW with SAP, process blueprints against SAP Best Practices, and a fit-gap list your business owners actually sign.</p>
+            </div>
+            <div class="phase-step" data-step="2">
+              <span class="tag">PHASE 03</span>
+              <h4>Convert</h4>
+              <p>System build, data migration, and integration testing through iterative mock cycles — each one closer to your real transaction volumes.</p>
+            </div>
+            <div class="phase-step" data-step="3">
+              <span class="tag">PHASE 04</span>
+              <h4>Run</h4>
+              <p>Cutover, hypercare, and a managed operations model your team can take over — or keep us on for, at a scope you set.</p>
+            </div>
+          </div>
+
+          <div class="approach-progress" aria-hidden="true">
+            <span class="approach-progress-fill"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="industries" class="exhibit">
+    <div class="spine"></div>
+    <div class="wrap">
+      <div class="exhibit-label">EX. 04 — INDUSTRIES</div>
+      <div class="section-head reveal">
+        <h2 class="section-title" data-split-reveal>Depth in the industries that actually run on SAP.</h2>
+        <p class="section-desc">Eight sectors where we already carry the accelerators, the fit-to-standard playbooks, and the scar tissue from a conversion that went sideways somewhere else.</p>
+      </div>
+
+      <div class="industry-grid reveal depth-stage">
+        <div class="industry-card" data-scroll-x="-30" data-scroll-y="20" data-scroll-z="-25" data-scroll-rotate="-4">
+          <h3>Discrete Manufacturing</h3>
+          <p>One system of record from engineering change to the shop floor — no shadow spreadsheets closing the gap.</p>
+        </div>
+        <div class="industry-card" data-scroll-x="26" data-scroll-y="-14" data-scroll-z="-40" data-scroll-rotate="3">
+          <h3>Automotive</h3>
+          <p>EDI and JIT/JIS sequencing that stays in lock-step with the OEM, even when the release schedule moves overnight.</p>
+        </div>
+        <div class="industry-card" data-scroll-x="-22" data-scroll-y="28" data-scroll-z="-18" data-scroll-rotate="-3">
+          <h3>Chemical &amp; Process</h3>
+          <p>Batch and recipe management that holds up to regulatory audit, formula by formula.</p>
+        </div>
+        <div class="industry-card" data-scroll-x="32" data-scroll-y="-18" data-scroll-z="-32" data-scroll-rotate="4">
+          <h3>CPG &amp; Food and Beverage</h3>
+          <p>Trade spend and lot traceability visible enough to defend a recall in under an hour.</p>
+        </div>
+        <div class="industry-card" data-scroll-x="-28" data-scroll-y="16" data-scroll-z="-22" data-scroll-rotate="-3">
+          <h3>Life Sciences &amp; Healthcare</h3>
+          <p>GxP-validated builds, run by a team that has actually sat through the qualification.</p>
+        </div>
+        <div class="industry-card" data-scroll-x="24" data-scroll-y="-22" data-scroll-z="-38" data-scroll-rotate="3">
+          <h3>Retail</h3>
+          <p>Seasonal assortment and pricing decisions made on this week's data, not last quarter's.</p>
+        </div>
+        <div class="industry-card" data-scroll-x="-34" data-scroll-y="20" data-scroll-z="-24" data-scroll-rotate="-4">
+          <h3>Wholesale Distribution</h3>
+          <p>Freight, fulfillment speed, and customer-specific pricing reconciled on one P&amp;L.</p>
+        </div>
+        <div class="industry-card" data-scroll-x="28" data-scroll-y="-16" data-scroll-z="-30" data-scroll-rotate="3">
+          <h3>Utilities &amp; Energy</h3>
+          <p>Asset-heavy maintenance and plant reliability, engineered into EAM from day one.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="method" class="exhibit">
+    <div class="spine"></div>
+    <div class="wrap">
+      <div class="exhibit-label">EX. 05 — METHODOLOGY</div>
+      <div class="section-head reveal">
+        <h2 class="section-title" data-split-reveal>One accountable loop, not a stack of workstreams.</h2>
+        <p class="section-desc">Every engagement runs through the same cycle — Process, Platform, and People pulling toward a single point of accountability.</p>
+      </div>
+
+      <div class="triangle-wrap reveal">
+        <svg class="triangle-diagram" viewBox="0 0 400 380" xmlns="http://www.w3.org/2000/svg">
+          <path d="M200,20 L380,340 L20,340 Z"/>
+          <path class="tri-draw" d="M200,20 L380,340 L20,340 Z"/>
+        </svg>
+        <div class="tri-vertex" style="left:50%; top:5.3%;">DESIGN</div>
+        <div class="tri-vertex" style="left:5%; top:89.5%;">ASSESS</div>
+        <div class="tri-vertex" style="left:95%; top:89.5%;">DELIVER</div>
+
+        <div class="tri-node" style="left:35%; top:33.4%;"><span>01</span>Landscape Audit</div>
+        <div class="tri-node" style="left:65%; top:33.4%;"><span>02</span>Executive Alignment</div>
+        <div class="tri-node" style="left:80%; top:61.5%;"><span>03</span>Fit-to-Standard Design</div>
+        <div class="tri-node" style="left:65%; top:89.5%;"><span>04</span>Integration Governance</div>
+        <div class="tri-node" style="left:35%; top:89.5%;"><span>05</span>Change Adoption</div>
+        <div class="tri-node" style="left:20%; top:61.5%;"><span>06</span>Hypercare &amp; Tuning</div>
+
+        <div class="tri-center">SINGLE POINT<br>OF<br>ACCOUNTABILITY</div>
+
+        <div class="tri-side" style="left:22%; top:47%; transform:rotate(-58deg);">PEOPLE</div>
+        <div class="tri-side" style="left:78%; top:47%; transform:rotate(58deg);">PLATFORM</div>
+        <div class="tri-side" style="left:50%; top:97%; transform:translateX(-50%);">PROCESS</div>
+      </div>
+
+      <div class="ascend-wrap">
+        <div class="ascend-head reveal">
+          <div class="exhibit-label">THE ASCEND METHOD</div>
+          <h3 class="ascend-title" data-split-reveal>Six steps from legacy ECC to a system people trust.</h3>
+        </div>
+
+        <div class="ascend-bars">
+          <div class="ascend-item">
+            <div class="ascend-bar"><span class="letter">A</span></div>
+            <div class="ascend-item-label">ASSESS</div>
+          </div>
+          <div class="ascend-item">
+            <div class="ascend-bar"><span class="letter">S</span></div>
+            <div class="ascend-item-label">STREAMLINE</div>
+          </div>
+          <div class="ascend-item">
+            <div class="ascend-bar"><span class="letter">C</span></div>
+            <div class="ascend-item-label">CONVERT</div>
+          </div>
+          <div class="ascend-item">
+            <div class="ascend-bar"><span class="letter">E</span></div>
+            <div class="ascend-item-label">EMBED</div>
+          </div>
+          <div class="ascend-item">
+            <div class="ascend-bar"><span class="letter">N</span></div>
+            <div class="ascend-item-label">NAVIGATE</div>
+          </div>
+          <div class="ascend-item">
+            <div class="ascend-bar"><span class="letter">D</span></div>
+            <div class="ascend-item-label">DELIVER</div>
+          </div>
+        </div>
+
+        <div class="ascend-grid depth-stage">
+          <div class="ascend-card" data-scroll-x="-20" data-scroll-z="-15" data-scroll-rotate="-3" data-scroll-rotate-axis="x"><span class="letter-tag">A</span><h4>Assess</h4><p>Landscape and custom-code audit against your current ECC or S/4HANA environment, ranked by conversion complexity.</p></div>
+          <div class="ascend-card" data-scroll-x="20" data-scroll-z="-15" data-scroll-rotate="3" data-scroll-rotate-axis="x"><span class="letter-tag">S</span><h4>Streamline</h4><p>Fit-to-standard redesign of the processes still riding on twenty years of workarounds.</p></div>
+          <div class="ascend-card" data-scroll-x="-20" data-scroll-z="-15" data-scroll-rotate="-3" data-scroll-rotate-axis="x"><span class="letter-tag">C</span><h4>Convert</h4><p>Core system build and data migration, tested against your real transaction volumes.</p></div>
+          <div class="ascend-card" data-scroll-x="20" data-scroll-z="-15" data-scroll-rotate="3" data-scroll-rotate-axis="x"><span class="letter-tag">E</span><h4>Embed</h4><p>BTP integration and Business AI (Joule) wired into the processes that need it, not bolted on after.</p></div>
+          <div class="ascend-card" data-scroll-x="-20" data-scroll-z="-15" data-scroll-rotate="-3" data-scroll-rotate-axis="x"><span class="letter-tag">N</span><h4>Navigate</h4><p>Change management and training so the new system gets adopted, not quietly routed around.</p></div>
+          <div class="ascend-card" data-scroll-x="20" data-scroll-z="-15" data-scroll-rotate="3" data-scroll-rotate-axis="x"><span class="letter-tag">D</span><h4>Deliver</h4><p>Cutover, hypercare, and a managed operations model your team can run without us.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="evidence" class="exhibit">
+    <div class="spine"></div>
+    <div class="wrap">
+      <div class="parallax-num" aria-hidden="true" data-parallax-pointer data-parallax-mode="tilt" data-parallax-strength="0.8">06</div>
+      <div class="exhibit-label">EX. 06 — EVIDENCE</div>
+      <div class="section-head reveal">
+        <h2 class="section-title" data-split-reveal>Notes from the landscape.</h2>
+        <p class="section-desc">Short, specific writing on what actually breaks in an S/4HANA migration — and what to fix before it does.</p>
+      </div>
+
+      <div class="evidence-grid reveal depth-stage">
+        <div class="card" data-scroll-x="-36" data-scroll-z="-30" data-scroll-rotate="-4" data-scroll-rotate-axis="y">
+          <span class="tag">DEADLINE</span>
+          <h3>2027 isn't a software problem, it's a budget problem</h3>
+          <p>Mainstream ECC maintenance ends in 2027. Every quarter a business waits is a quarter closer to a forced migration on someone else's timeline, at someone else's price.</p>
+          <div class="read">6 min read</div>
+        </div>
+        <div class="card" data-scroll-y="26" data-scroll-z="-46">
+          <span class="tag">CUSTOM CODE</span>
+          <h3>The Z-table nobody remembers writing still runs payroll</h3>
+          <p>Most ECC estates carry a decade of custom code no one can explain anymore. A clean conversion has to decide, table by table, what's load-bearing and what's just debt.</p>
+          <div class="read">5 min read</div>
+        </div>
+        <div class="card" data-scroll-x="36" data-scroll-z="-30" data-scroll-rotate="4" data-scroll-rotate-axis="y">
+          <span class="tag">RISE WITH SAP</span>
+          <h3>RISE changes the contract, not just the hosting</h3>
+          <p>Moving to RISE with SAP resets the commercial relationship as much as the technical one. The migrations that go well treat it as both from day one.</p>
+          <div class="read">7 min read</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band" id="contact">
+    <div class="wrap reveal">
+      <div class="row">
+        <h2 data-split-reveal>Start with Phase 01 of ASCEND — the landscape audit.</h2>
+        <div class="side">Book a 30-minute working session with a partner. We'll map your industry's fit-to-standard accelerators and tell you, within a week, what your ASCEND path actually costs.</div>
+      </div>
+      <div class="hero-cta">
+        <a href="#" class="btn btn-primary">Book a consultation</a>
+        <a href="#industries" class="btn btn-ghost">See your industry</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="logo">PRAE<span>&middot;</span>EMINEO</div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>FIRM</h5>
+          <a href="#practice">Practice</a>
+          <a href="#industries">Industries</a>
+          <a href="#method">Method</a>
+          <a href="#evidence">Evidence</a>
+          <a href="#">Careers</a>
+        </div>
+        <div class="footer-col">
+          <h5>SECTORS</h5>
+          <a href="#">Manufacturing</a>
+          <a href="#">Retail &amp; CPG</a>
+          <a href="#">Utilities &amp; Energy</a>
+          <a href="#">Public Sector</a>
+        </div>
+        <div class="footer-col">
+          <h5>CONTACT</h5>
+          <a href="#contact">Book a consultation</a>
+          <a href="#">Press</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Praeemineo. All rights reserved.</span>
+      <span>Privacy &middot; Terms</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Basic reveal-on-scroll (fallback, always runs) ---------- */
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold:.15 });
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  /* ---------- Preloader: data lines assemble into a mark, then reveal ---------- */
+  (function runPreloader(){
+    const pre = document.getElementById('preloader');
+    if(!pre) return;
+    const done = () => {
+      pre.style.display = 'none';
+      document.body.classList.remove('loading');
+    };
+    if(prefersReducedMotion || typeof gsap === 'undefined'){ done(); return; }
+
+    gsap.set('.pl-lines line', { opacity:0 });
+    gsap.set('.pl-mark', { opacity:0, scale:.6, transformOrigin:'center' });
+    gsap.set('.pl-line', { opacity:0 });
+
+    // Rotating data-insight captions, timed independently of the main timeline
+    const pctEl = document.querySelector('.preloader-pct');
+    const pctState = { v:0 };
+    gsap.to(pctState, {
+      v:100, duration:2.15, ease:'power1.inOut',
+      onUpdate: ()=>{ if(pctEl) pctEl.textContent = String(Math.round(pctState.v)).padStart(2,'0') + '%'; }
+    });
+
+    const lineTl = gsap.timeline();
+    document.querySelectorAll('.pl-line').forEach((el, i)=>{
+      lineTl.to(el, { opacity:1, duration:.2 }, i*0.5)
+            .to(el, { opacity:0, duration:.2 }, i*0.5 + 0.32);
+    });
+
+    const tl = gsap.timeline({ onComplete: done, defaults:{ ease:'power2.inOut' } });
+    tl.to('.pl-lines line', { opacity:.85, duration:.45, stagger:.06 })
+      .to('.pl-mark', { opacity:1, scale:1, duration:.55, ease:'back.out(1.6)' }, '+=1.05')
+      .to('.pl-mark', { opacity:1 }, '+=.15')
+      .to('.preloader-flash', { opacity:1, duration:.12 })
+      .to('.preloader-flash', { opacity:0, duration:.3 })
+      .to(pre, { yPercent:-100, duration:.7, ease:'power3.inOut' }, '-=.05');
+
+    // safety net: never block the page for more than ~6s
+    setTimeout(()=>{ if(document.body.classList.contains('loading')) done(); }, 6000);
+  })();
+
+  /* ---------- Cursor-responsive fluid background (hero) ---------- */
+  (function initFluidBackground(){
+    const heroEl = document.querySelector('.hero');
+    const canvas = document.getElementById('fluid-canvas');
+    if(!heroEl || !canvas) return;
+
+    if(prefersReducedMotion || typeof THREE === 'undefined'){
+      heroEl.classList.add('static-fallback');
+      return;
+    }
+
+    let renderer, scene, camera, uniforms, raf;
+    try{
+      renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false, powerPreference:'low-power' });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    }catch(err){
+      heroEl.classList.add('static-fallback');
+      return;
+    }
+
+    scene = new THREE.Scene();
+    camera = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+
+    uniforms = {
+      uTime:      { value:0 },
+      uMouse:     { value:new THREE.Vector2(0.5,0.42) },
+      uResolution:{ value:new THREE.Vector2(1,1) }
+    };
+
+    const vertexShader = `
+      varying vec2 vUv;
+      void main(){
+        vUv = uv;
+        gl_Position = vec4(position.xy, 0.0, 1.0);
+      }
+    `;
+
+    const fragmentShader = `
+      precision highp float;
+      varying vec2 vUv;
+      uniform float uTime;
+      uniform vec2 uMouse;
+      uniform vec2 uResolution;
+
+      float hash(vec2 p){
+        return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453123);
+      }
+      float noise(vec2 p){
+        vec2 i = floor(p);
+        vec2 f = fract(p);
+        float a = hash(i);
+        float b = hash(i + vec2(1.0,0.0));
+        float c = hash(i + vec2(0.0,1.0));
+        float d = hash(i + vec2(1.0,1.0));
+        vec2 u = f*f*(3.0-2.0*f);
+        return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
+      }
+
+      void main(){
+        float aspect = uResolution.x / max(uResolution.y, 1.0);
+        vec2 p = vec2(vUv.x * aspect, vUv.y);
+        vec2 mouseP = vec2(uMouse.x * aspect, uMouse.y);
+
+        float distM = length(p - mouseP);
+        vec2 dir = (p - mouseP) / (distM + 0.0001);
+        float push = smoothstep(0.6, 0.0, distM) * 0.14;
+        p += dir * push;
+
+        float t = uTime * 0.15;
+        float lines = 0.0;
+        for(int i=1; i<6; i++){
+          float fi = float(i);
+          float freq = fi * 2.1;
+          float speed = 0.9 + fi*0.18;
+          float amp = 0.22 / fi;
+          float phase = noise(vec2(p.x*0.6, t*0.4 + fi)) * 1.8;
+          float wave = sin(p.x*freq + t*speed + phase) * amp;
+          float d = abs(p.y - 0.44 - wave);
+          lines += smoothstep(0.03, 0.0, d) * (0.55/fi);
+        }
+
+        float grain = (hash(vUv*uResolution.xy*0.6 + uTime) - 0.5) * 0.035;
+
+        vec3 dark   = vec3(0.016,0.035,0.078);
+        vec3 mid    = vec3(0.06,0.14,0.32);
+        vec3 bright = vec3(0.28,0.55,0.98);
+
+        float b = clamp(lines, 0.0, 1.0);
+        vec3 color = mix(dark, mid, smoothstep(0.0,0.5,b));
+        color = mix(color, bright, smoothstep(0.4,1.0,b));
+        color += grain;
+
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `;
+
+    const mesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(2,2),
+      new THREE.ShaderMaterial({ uniforms, vertexShader, fragmentShader })
+    );
+    scene.add(mesh);
+
+    function resize(){
+      const w = heroEl.clientWidth || 1;
+      const h = heroEl.clientHeight || 1;
+      renderer.setSize(w, h, false);
+      uniforms.uResolution.value.set(w, h);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const target = { x:0.5, y:0.42 };
+    const current = { x:0.5, y:0.42 };
+    heroEl.addEventListener('mousemove', (e)=>{
+      const r = heroEl.getBoundingClientRect();
+      target.x = (e.clientX - r.left) / r.width;
+      target.y = 1.0 - (e.clientY - r.top) / r.height;
+    });
+    heroEl.addEventListener('mouseleave', ()=>{ target.x = 0.5; target.y = 0.42; });
+
+    const clock = new THREE.Clock();
+    let visible = true;
+    const io2 = new IntersectionObserver((entries)=>{ visible = entries[0].isIntersecting; }, { threshold:0 });
+    io2.observe(heroEl);
+
+    function animate(){
+      raf = requestAnimationFrame(animate);
+      if(!visible) return;
+      current.x += (target.x - current.x) * 0.06;
+      current.y += (target.y - current.y) * 0.06;
+      uniforms.uMouse.value.set(current.x, current.y);
+      uniforms.uTime.value = clock.getElapsedTime();
+      renderer.render(scene, camera);
+    }
+    animate();
+  })();
+
+  /* ---------- Magnetic CTA buttons ---------- */
+  (function initMagneticButtons(){
+    if(prefersReducedMotion || typeof gsap === 'undefined') return;
+    document.querySelectorAll('.btn').forEach((btn)=>{
+      let label = btn.querySelector('.btn-label');
+      if(!label){
+        label = document.createElement('span');
+        label.className = 'btn-label';
+        while(btn.firstChild) label.appendChild(btn.firstChild);
+        btn.appendChild(label);
+      }
+      const xTo = gsap.quickTo(btn, 'x', { duration:.5, ease:'power3.out' });
+      const yTo = gsap.quickTo(btn, 'y', { duration:.5, ease:'power3.out' });
+      const xToLabel = gsap.quickTo(label, 'x', { duration:.5, ease:'power3.out' });
+      const yToLabel = gsap.quickTo(label, 'y', { duration:.5, ease:'power3.out' });
+
+      btn.addEventListener('mousemove', (e)=>{
+        const r = btn.getBoundingClientRect();
+        const relX = e.clientX - r.left - r.width/2;
+        const relY = e.clientY - r.top - r.height/2;
+        xTo(relX * 0.35);
+        yTo(relY * 0.45);
+        xToLabel(relX * 0.15);
+        yToLabel(relY * 0.2);
+      });
+      btn.addEventListener('mouseleave', ()=>{
+        xTo(0); yTo(0); xToLabel(0); yToLabel(0);
+      });
+    });
+  })();
+
+  /* ---------- Approach: immersive 3-layer parallax (pinned, scrub-driven) ---------- */
+  (function initApproachParallax(){
+    const pinEl = document.querySelector('.approach-pin');
+    if(!pinEl) return;
+
+    // Populate the background "celestial/texture" layer with a generated star field
+    const starsSvg = document.querySelector('.approach-stars');
+    if(starsSvg && !starsSvg.childNodes.length){
+      const frag = document.createDocumentFragment();
+      for(let i=0; i<140; i++){
+        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx', (Math.random()*1000).toFixed(1));
+        c.setAttribute('cy', (Math.random()*700).toFixed(1));
+        c.setAttribute('r', (0.6 + Math.random()*1.4).toFixed(2));
+        c.setAttribute('fill-opacity', (0.15 + Math.random()*0.5).toFixed(2));
+        frag.appendChild(c);
+      }
+      starsSvg.appendChild(frag);
+    }
+
+    // If motion is reduced or GSAP/ScrollTrigger failed to load, leave the section
+    // in its default, fully-visible, normal-flow state — nothing further to do.
+    if(prefersReducedMotion || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+
+    const isDesktop = window.matchMedia('(min-width:900px)').matches;
+
+    if(isDesktop){
+      pinEl.classList.add('pin-ready'); // opt into the 100vh/fixed-viewport layout
+
+      // Pin the section for a fixed scroll distance. GSAP applies position:fixed
+      // to the pinned element for the duration of the pin (the "fixed positioning"
+      // this effect relies on), then releases it back to normal flow.
+      ScrollTrigger.create({
+        trigger: pinEl,
+        start: 'top top',
+        end: '+=2600',
+        pin: true,
+        anticipatePin: 1
+      });
+
+      const TOTAL = 4.6; // virtual timeline length mapped across the pinned scroll range
+
+      gsap.timeline({
+        defaults:{ ease:'none' },
+        scrollTrigger:{ trigger: pinEl, start:'top top', end:'+=2600', scrub:1 }
+      })
+        // background layer — slow, 0.3x
+        .to('.approach-bg', { y:-90, duration:TOTAL }, 0)
+        // foreground layer — fast, 0.6x, with scale
+        .to('.approach-fg', { y:-180, scale:1.16, duration:TOTAL }, 0)
+        // progress indicator tied to overall scroll progress
+        .fromTo('.approach-progress-fill', { width:'0%' }, { width:'100%', duration:TOTAL }, 0)
+        // middle content layer — text/cards staggering in
+        .fromTo('.phase-step[data-step="0"]', { opacity:0, y:28 }, { opacity:1, y:0, duration:.4 }, 0.1)
+        .fromTo('.phase-step[data-step="1"]', { opacity:0, y:28 }, { opacity:1, y:0, duration:.4 }, 1.1)
+        .fromTo('.phase-step[data-step="2"]', { opacity:0, y:28 }, { opacity:1, y:0, duration:.4 }, 2.1)
+        .fromTo('.phase-step[data-step="3"]', { opacity:0, y:28 }, { opacity:1, y:0, duration:.4 }, 3.1);
+
+    } else {
+      // Mobile / narrow viewports: skip pinning and fixed layers entirely —
+      // a simple per-step fade, no position:fixed involved at all.
+      gsap.utils.toArray('.phase-step').forEach((el, i)=>{
+        gsap.fromTo(el,
+          { opacity:0, y:22 },
+          { opacity:1, y:0, duration:.6, ease:'power2.out', delay:i*0.05,
+            scrollTrigger:{ trigger:el, start:'top 88%' } }
+        );
+      });
+    }
+  })();
+
+  /* ---------- Industry card tilt ---------- */
+  (function initCardTilt(){
+    if(prefersReducedMotion || typeof gsap === 'undefined') return;
+    document.querySelectorAll('.industry-card').forEach((card)=>{
+      const rotX = gsap.quickTo(card, 'rotationX', { duration:.5, ease:'power3.out' });
+      const rotY = gsap.quickTo(card, 'rotationY', { duration:.5, ease:'power3.out' });
+      card.addEventListener('mousemove', (e)=>{
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        rotX(py * -6);
+        rotY(px * 6);
+      });
+      card.addEventListener('mouseleave', ()=>{ rotX(0); rotY(0); });
+    });
+  })();
+
+  /* ---------- Scroll choreography: blueprint reveal + parallax ---------- */
+  (function initScrollAnimations(){
+    if(prefersReducedMotion || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Note: the old one-shot entrance fades for .discipline / .industry-card /
+    // .ascend-card used to live here. They're superseded by js/core/scroll-matrix.js,
+    // which drives those same elements' x/y/z/rotate continuously off their
+    // data-scroll-* attributes — leaving both in place would mean two
+    // independent tweens fighting over the same `y` transform.
+
+    gsap.utils.toArray('.parallax-num').forEach((el)=>{
+      gsap.to(el, {
+        y:-60, ease:'none',
+        scrollTrigger:{ trigger:el.closest('section'), start:'top bottom', end:'bottom top', scrub:.5 }
+      });
+    });
+
+    /* Triangle methodology diagram: pinned, scrubbed build-up */
+    const triWrap = document.querySelector('.triangle-wrap');
+    if(triWrap){
+      const path = triWrap.querySelector('.tri-draw');
+      const buildTl = gsap.timeline()
+        .to(path, { strokeDashoffset:0, duration:1, ease:'none' })
+        .to('.tri-vertex', { opacity:1, scale:1, duration:.35, stagger:.15 }, 0.1)
+        .to('.tri-node', { opacity:1, scale:1, duration:.3, stagger:.08 }, 0.4)
+        .to('.tri-center', { opacity:1, scale:1, duration:.4, ease:'back.out(1.5)' }, 0.85);
+
+      ScrollTrigger.create({
+        trigger: triWrap,
+        start: 'top 75%',
+        end: 'top 10%',
+        scrub: .6,
+        animation: buildTl
+      });
+    }
+
+    /* ASCEND bars: rise into place with stagger */
+    gsap.to('.ascend-bar', {
+      scaleY:1, duration:.8, ease:'power3.out', stagger:.1,
+      scrollTrigger:{ trigger:'.ascend-bars', start:'top 85%' }
+    });
+  })();
+</script>
+
+<script type="module" src="./js/main.js"></script>
+
+</body>
+</html>
