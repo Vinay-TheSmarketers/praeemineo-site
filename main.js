@@ -17,6 +17,11 @@ import { initScrollMatrix } from './core/scroll-matrix.js';
 import { initPointerParallax } from './core/pointer-parallax.js';
 import { initTextReveal } from './core/text-reveal.js';
 import { initPrism } from './components/prism.js';
+import { initSmoothScroll } from './smooth-scroll.js';
+import { initScrollMatrix } from './scroll-matrix.js';
+import { initPointerParallax } from './pointer-parallax.js';
+import { initTextReveal } from './text-reveal.js';
+import { initPrism } from './prism.js';
 
 async function boot() {
   const gsap = /** @type {any} */ (window).gsap;
