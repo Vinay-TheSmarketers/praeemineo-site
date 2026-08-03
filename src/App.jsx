@@ -60,6 +60,16 @@ export function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeStage, setActiveStage] = useState(0);
   const [inValuePrism, setInValuePrism] = useState(false);
+  const [isLightMode, setIsLightMode] = useState(true); // Default to white & blue light mode
+
+  // Toggle theme class on document element
+  useEffect(() => {
+    if (isLightMode) {
+      document.documentElement.classList.remove("dark-mode");
+    } else {
+      document.documentElement.classList.add("dark-mode");
+    }
+  }, [isLightMode]);
 
   // Preloader Logic
   useEffect(() => {
@@ -318,6 +328,9 @@ export function App() {
           <span>{String(activeStage + 1).padStart(2, "0")}</span> / 08 · {stages[activeStage][1]}
         </div>
 
+        <button className="theme-toggle" onClick={() => setIsLightMode(!isLightMode)} aria-label="Toggle theme">
+          {isLightMode ? "☽ Dark" : "☉ Light"}
+        </button>
         <button className="full-prism-link" onClick={() => jumpTo(inValuePrism ? "full-prism" : "contact")}>
           <span className="full-desktop-label">{inValuePrism ? "Full Prism" : "Book consultation"}</span>
           <span className="full-mobile-label">{inValuePrism ? "Prism" : "Book"}</span>
@@ -329,7 +342,7 @@ export function App() {
       <main>
         {/* HERO SECTION */}
         <section id="hero" className="hero exhibit">
-          <FluidCanvas />
+          <FluidCanvas isLightMode={isLightMode} />
           <div className="hero-veil"></div>
           <div className="spine"></div>
           <div className="wrap">
@@ -414,7 +427,7 @@ export function App() {
         <section id="methodology" className="valueprism-section">
           <div className="valueprism-sticky">
             <div className="scene-stage">
-              <ValuePrismStage />
+              <ValuePrismStage isLightMode={isLightMode} />
               <div className="stage-atmosphere" aria-hidden="true" />
               <div className="scene-interface" aria-hidden="true">
                 <div className="core-badge">CULTURE OF<br />ETHICS &amp; COMPLIANCE</div>

@@ -94,14 +94,14 @@ function makeFacetedWedge(points, palette, edgeColor) {
   };
 }
 
-export function ValuePrismStage() {
+export function ValuePrismStage({ isLightMode }) {
   const hostRef = useRef(null);
 
   useLayoutEffect(() => {
     const host = hostRef.current;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0b0e13, .055);
+    scene.fog = new THREE.FogExp2(isLightMode ? 0xf8fafc : 0x0b0e13, .055);
 
     const camera = new THREE.PerspectiveCamera(38, 1, .1, 100);
     camera.position.set(0, .05, 12.4);
@@ -127,12 +127,16 @@ export function ValuePrismStage() {
     parallaxGroup.add(modelGroup);
     modelGroup.add(objectGroup);
 
-    scene.add(new THREE.HemisphereLight(0x8dbdff, 0x03030d, 1.6));
-    const blueLight = new THREE.PointLight(0x3355FF, 48, 18, 2);
+    scene.add(new THREE.HemisphereLight(
+      isLightMode ? 0xffffff : 0x8dbdff,
+      isLightMode ? 0xdde5ff : 0x03030d,
+      isLightMode ? 2.2 : 1.6
+    ));
+    const blueLight = new THREE.PointLight(0x3355FF, isLightMode ? 64 : 48, 18, 2);
     blueLight.position.set(-1.4, 2.6, 3.7);
-    const brassLight = new THREE.PointLight(0xB08D3F, 34, 18, 2);
+    const brassLight = new THREE.PointLight(0xB08D3F, isLightMode ? 50 : 34, 18, 2);
     brassLight.position.set(1.45, 1.85, 2.8);
-    const rimLight = new THREE.PointLight(0xffffff, 18, 15, 2);
+    const rimLight = new THREE.PointLight(0xffffff, isLightMode ? 28 : 18, 15, 2);
     rimLight.position.set(0, -2.2, 3.4);
     scene.add(blueLight, brassLight, rimLight);
 
@@ -385,7 +389,7 @@ export function ValuePrismStage() {
       renderer.dispose();
       renderer.domElement.remove();
     };
-  }, []);
+  }, [isLightMode]);
 
   return <div ref={hostRef} className="three-host" />;
 }

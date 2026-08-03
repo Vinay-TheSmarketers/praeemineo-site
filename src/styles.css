@@ -1,6 +1,24 @@
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap");
 
 :root {
+  /* Default: Light Mode (white and blue) */
+  --ink: #F8FAFC;
+  --ink-2: #FFFFFF;
+  --paper: #0F172A;
+  --paper-dim: #334155;
+  --cobalt: #0044FF;
+  --cobalt-bright: #3b82f6;
+  --brass: #B08D3F;
+  --graphite: #475569;
+  --slate: #E2E8F0;
+  --ink-on-paper: #FFFFFF;
+  --serif: 'Fraunces', serif;
+  --sans: 'Inter', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+html.dark-mode {
+  /* Dark Mode */
   --ink: #0B0E13;
   --ink-2: #12151C;
   --paper: #F3EFE6;
@@ -11,9 +29,6 @@
   --graphite: #8890A0;
   --slate: #2A2F3A;
   --ink-on-paper: #14171D;
-  --serif: 'Fraunces', serif;
-  --sans: 'Inter', sans-serif;
-  --mono: 'IBM Plex Mono', monospace;
 }
 
 * {
@@ -243,16 +258,43 @@ button {
   width: min(calc(100% - 36px), 78vw, 1180px);
   height: 58px;
   display: grid;
-  grid-template-columns: auto 1fr auto auto;
+  grid-template-columns: auto 1fr auto auto auto;
   align-items: center;
-  gap: 34px;
+  gap: 20px;
   padding: 0 8px 0 24px;
   border: 1px solid rgba(176, 141, 63, .12);
   border-radius: 12px;
-  background: rgba(11, 14, 19, .84);
-  box-shadow: 0 20px 80px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .03);
+  background: rgba(var(--ink-2), .84);
+  background: var(--ink-2);
+  opacity: 0.95;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, .12), inset 0 1px 0 rgba(255, 255, 255, .03);
   backdrop-filter: blur(16px);
   transform: translateX(-50%);
+}
+
+html.dark-mode .site-header {
+  background: rgba(11, 14, 19, .84);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, .45);
+}
+
+.theme-toggle {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--slate);
+  color: var(--paper-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.theme-toggle:hover {
+  background: var(--slate);
+  color: var(--paper);
+  border-color: var(--cobalt-bright);
 }
 
 .wordmark {
@@ -347,10 +389,10 @@ button {
 
 @media(max-width: 900px) {
   .site-header {
-    width: min(calc(100% - 24px), 90vw);
-    gap: 14px;
+    width: min(calc(100% - 24px), 95vw);
+    gap: 12px;
     padding-left: 16px;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: 1fr auto auto;
   }
   .top-nav {
     display: none;

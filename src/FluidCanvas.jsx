@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-export function FluidCanvas() {
+export function FluidCanvas({ isLightMode }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -35,6 +35,7 @@ export function FluidCanvas() {
       uTime: { value: 0 },
       uMouse: { value: new THREE.Vector2(0.5, 0.42) },
       uResolution: { value: new THREE.Vector2(1, 1) },
+      uLightMode: { value: isLightMode ? 1.0 : 0.0 },
     };
 
     const vertexShader = `
@@ -51,6 +52,7 @@ export function FluidCanvas() {
       uniform float uTime;
       uniform vec2 uMouse;
       uniform vec2 uResolution;
+      uniform float uLightMode;
 
       float hash(vec2 p){
         return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453123);
@@ -94,6 +96,12 @@ export function FluidCanvas() {
         vec3 dark   = vec3(0.011, 0.014, 0.019); // matched to deep ink -- #0B0E13
         vec3 mid    = vec3(0.03, 0.07, 0.20);
         vec3 bright = vec3(0.20, 0.33, 0.99); // cobalt-bright matching -- #3355FF
+
+        if (uLightMode > 0.5) {
+          dark   = vec3(0.97, 0.98, 1.0);    // soft cool white background
+          mid    = vec3(0.78, 0.86, 0.98);   // soft blue transition
+          bright = vec3(0.00, 0.27, 0.92);   // deep sapphire blue waves
+        }
 
         float b = clamp(lines, 0.0, 1.0);
         vec3 color = mix(dark, mid, smoothstep(0.0, 0.5, b));
@@ -182,7 +190,7 @@ export function FluidCanvas() {
       material.dispose();
       renderer.dispose();
     };
-  }, []);
+  }, [isLightMode]);
 
   return <canvas id="fluid-canvas" ref={canvasRef} />;
 }
