@@ -1,0 +1,6 @@
+[31merror when starting dev server:
+Error: Port 4173 is already in use
+    at Server.onError (file:///C:/Users/OrCon/Documents/Codex/2026-08-03/this-is-a-fantastic-concept-transforming/outputs/valueprism/node_modules/vite/dist/node/chunks/dep-Dq2t6Dq0.js:25023:18)
+    at Server.emit (node:events:509:28)
+    at emitErrorNT (node:net:2045:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)[39m
