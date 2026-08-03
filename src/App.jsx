@@ -26,15 +26,15 @@ const stages = [
 ];
 
 const methodNodes = [
-  ["01", "Governance & leadership"],
-  ["02", "Be fair & ethical"],
-  ["03", "Be a value add"],
-  ["04", "Training & communications"],
-  ["05", "Learning & encouraging"],
-  ["06", "Customer focused"],
-  ["07", "Result focused"],
-  ["08", "Outstanding service"],
-  ["09", "Continuous improvement"],
+  ["01", "Governance & Leadership"],
+  ["02", "Be Fair & Ethical"],
+  ["03", "Be a Value Add"],
+  ["04", "Training & Communications"],
+  ["05", "Learning & Encouraging"],
+  ["06", "Customer Focused"],
+  ["07", "Result Focused"],
+  ["08", "Outstanding Service"],
+  ["09", "Continuous Improvement"],
 ];
 
 function FlowTitle({ lines }) {
