@@ -67,15 +67,6 @@ const practices = [
   }
 ];
 
-const bridgeSteps = [
-  { letter: "B", label: "Business Process Understanding", desc: "Align technology with your strategic goals. Walk the real processes — not the documented ones." },
-  { letter: "R", label: "Re-engineering Assessment", desc: "Identify and transform key processes for future growth. Decide what stays, what changes, what retires." },
-  { letter: "I", label: "Innovation Analysis", desc: "Benchmark against industry best practices and SAP's latest capabilities to uncover opportunities for differentiation." },
-  { letter: "D", label: "Digitalization Strategy", desc: "Build a roadmap to maximise your SAP transformation — phased, defendable, value-aligned." },
-  { letter: "G", label: "Governance Framework", desc: "Ensure compliance, clear communication, and project alignment — including risk, value tracking, and stage-gate approvals." },
-  { letter: "E", label: "Execution Excellence", desc: "Deliver precise implementation with ongoing support and optimisation. Senior consultants, end-to-end." }
-];
-
 const industries = [
   { title: "Discrete Manufacturing", desc: "One truthful operating system from engineering to the shop floor." },
   { title: "Automotive", desc: "Stay in lock-step with the OEM — even when the forecast moves at 2 a.m." },
@@ -411,7 +402,6 @@ export function App() {
         <nav className="top-nav" aria-label="Main Navigation">
           <button onClick={() => jumpTo("practice")}>Practices</button>
           <button onClick={() => jumpTo("methodology")}>Methodology</button>
-          <button onClick={() => jumpTo("bridge")}>BRIDGE Cycle</button>
           <button onClick={() => jumpTo("industries")}>Industries</button>
           <button onClick={() => jumpTo("accelerators")}>Accelerators</button>
         </nav>
@@ -577,72 +567,11 @@ export function App() {
           </div>
         </section>
 
-        {/* THE BRIDGE METHODOLOGY CYCLE */}
-        <section id="bridge" className="exhibit">
-          <div className="spine"></div>
-          <div className="wrap">
-            <div className="exhibit-label">EX. 04 — METHODOLOGY</div>
-            <div className="section-head reveal">
-              <h2 className="section-title" data-split-reveal>BRIDGE Methodology</h2>
-              <p className="section-desc">Six steps from real-world process to measurable execution.</p>
-            </div>
-
-            <div className="triangle-wrap reveal">
-              <svg className="triangle-diagram" viewBox="0 0 400 380" xmlns="http://www.w3.org/2000/svg">
-                <path d="M200,20 L380,340 L20,340 Z"/>
-                <path className="tri-draw" d="M200,20 L380,340 L20,340 Z"/>
-              </svg>
-              <div className="tri-vertex" style={{ left: "50%", top: "5.3%" }}>DESIGN</div>
-              <div className="tri-vertex" style={{ left: "5%", top: "89.5%" }}>ASSESS</div>
-              <div className="tri-vertex" style={{ left: "95%", top: "89.5%" }}>DELIVER</div>
-
-              <div className="tri-node" style={{ left: "35%", top: "33.4%" }}><span>B</span>Process Understanding</div>
-              <div className="tri-node" style={{ left: "65%", top: "33.4%" }}><span>R</span>Re-engineering</div>
-              <div className="tri-node" style={{ left: "80%", top: "61.5%" }}><span>I</span>Innovation Analysis</div>
-              <div className="tri-node" style={{ left: "65%", top: "89.5%" }}><span>D</span>Digitalization</div>
-              <div className="tri-node" style={{ left: "35%", top: "89.5%" }}><span>G</span>Governance</div>
-              <div className="tri-node" style={{ left: "20%", top: "61.5%" }}><span>E</span>Execution</div>
-
-              <div className="tri-center">SINGLE POINT<br/>OF<br/>ACCOUNTABILITY</div>
-
-              <div className="tri-side" style={{ left: "22%", top: "47%", transform: "rotate(-58deg)" }}>PEOPLE</div>
-              <div className="tri-side" style={{ left: "78%", top: "47%", transform: "rotate(58deg)" }}>PLATFORM</div>
-              <div className="tri-side" style={{ left: "50%", top: "97%", transform: "translateX(-50%)" }}>PROCESS</div>
-            </div>
-
-            <div className="ascend-wrap">
-              <div className="ascend-head reveal">
-                <div className="exhibit-label">THE BRIDGE LIFECYCLE</div>
-                <h3 className="ascend-title" data-split-reveal>Six steps from real-world process to measurable execution.</h3>
-              </div>
-
-              <div className="ascend-bars">
-                {bridgeSteps.map((s) => (
-                  <div key={s.letter} className="ascend-item">
-                    <div className="ascend-bar"><span className="letter">{s.letter}</span></div>
-                    <div className="ascend-item-label">{s.letter}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="ascend-grid depth-stage">
-                {bridgeSteps.map((s, idx) => (
-                  <div key={s.letter} className="ascend-card" data-scroll-x={idx % 2 === 0 ? "-20" : "20"} data-scroll-z="-15" data-scroll-rotate={idx % 2 === 0 ? "-3" : "3"}>
-                    <span className="letter-tag">{s.letter}</span>
-                    <h4>{s.label}</h4>
-                    <p>{s.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* INDUSTRIES GRID */}
         <section id="industries" className="exhibit">
           <div className="spine"></div>
           <div className="wrap">
-            <div className="exhibit-label">EX. 05 — INDUSTRIES</div>
+            <div className="exhibit-label">EX. 04 — INDUSTRIES</div>
             <div className="section-head reveal">
               <h2 className="section-title" data-split-reveal>Industries</h2>
               <p className="section-desc">Industry depth, not industry tourism. Eight industries we know inside-out. Pre-built ValuePrism™ playbooks, accelerators, and audit packs — so we start halfway, not at zero.</p>
@@ -760,7 +689,6 @@ export function App() {
                 <h5>COMPANY</h5>
                 <button onClick={() => jumpTo("practice")}>Why Praeemineo</button>
                 <button onClick={() => jumpTo("methodology")}>Methodology</button>
-                <button onClick={() => jumpTo("bridge")}>BRIDGE Cycle</button>
                 <button onClick={() => jumpTo("contact")}>Careers</button>
                 <button onClick={() => jumpTo("contact")}>Contact</button>
               </div>
