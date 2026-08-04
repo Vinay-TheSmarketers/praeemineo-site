@@ -1644,8 +1644,14 @@ footer .wrap {
 .practices-grid {
   display: grid;
   gap: 20px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   margin-top: 40px;
+}
+
+@media (min-width: 1024px) {
+  .practices-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .practice-card {
@@ -1724,6 +1730,13 @@ footer .wrap {
 }
 
 /* ---------- Static 6-Step Methodology Grid ---------- */
+#execution {
+  margin-top: 140px;
+  padding-top: 40px;
+  padding-bottom: 120px;
+  margin-bottom: 60px;
+}
+
 .steps-grid {
   display: grid;
   gap: 20px;
