@@ -88,10 +88,38 @@ const industries = [
 ];
 
 const accelerators = [
-  { num: "01", name: "ScanIQ", desc: "Templates auto-converted to RF screens for warehouse process optimization." },
-  { num: "02", name: "ClearIQ", desc: "Lockbox processing for payment exceptions, reconciliation, and posting." },
-  { num: "03", name: "InvoiceX", desc: "AI-based document processing of invoices for AP automation." },
-  { num: "04", name: "MDG+", desc: "Framework for SAP MDG adoption with prescriptive build-and-manage." }
+  {
+    num: "01",
+    name: "ScanIQ",
+    tag: "Warehouse Optimization",
+    desc: "Templates auto-converted to RF screens for warehouse process optimization.",
+    stat: "75% faster RF onboarding",
+    tech: "SAP EAM / WM / EWM"
+  },
+  {
+    num: "02",
+    name: "ClearIQ",
+    tag: "Payment Reconciliation",
+    desc: "Lockbox processing for payment exceptions, reconciliation, and posting.",
+    stat: "99.4% auto-match rate",
+    tech: "FI-CA / Treasury / BTP"
+  },
+  {
+    num: "03",
+    name: "InvoiceX",
+    tag: "AP Automation & AI",
+    desc: "AI-based document processing of invoices for AP automation.",
+    stat: "Sub-second OCR extraction",
+    tech: "SAP Document AI / Joule"
+  },
+  {
+    num: "04",
+    name: "MDG+",
+    tag: "Master Data Governance",
+    desc: "Framework for SAP MDG adoption with prescriptive build-and-manage.",
+    stat: "Pre-built domain models",
+    tech: "SAP MDG & Datasphere"
+  }
 ];
 
 function FlowTitle({ lines }) {
@@ -632,9 +660,20 @@ export function App() {
             <div className="accelerators-grid reveal depth-stage">
               {accelerators.map((acc) => (
                 <div key={acc.num} className="accelerator-card">
-                  <span className="acc-num">{acc.num}</span>
+                  <div className="acc-card-top">
+                    <span className="acc-num">{acc.num}</span>
+                    <span className="acc-tag">{acc.tag}</span>
+                  </div>
                   <h3>{acc.name}</h3>
                   <p>{acc.desc}</p>
+                  <div className="acc-meta">
+                    <span className="acc-stat">⚡ {acc.stat}</span>
+                    <span className="acc-tech">{acc.tech}</span>
+                  </div>
+                  <button className="acc-btn" onClick={() => jumpTo("contact")}>
+                    <span>Request demo</span>
+                    <i>↗</i>
+                  </button>
                 </div>
               ))}
             </div>
