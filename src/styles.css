@@ -734,6 +734,7 @@ h2.section-title {
 .valueprism-section {
   position: relative;
   height: 800vh; /* 8 chapters */
+  margin-top: 120px;
   padding: 0;
   background: var(--ink);
 }
