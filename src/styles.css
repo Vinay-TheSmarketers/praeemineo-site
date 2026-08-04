@@ -1867,9 +1867,8 @@ html.light-mode .stay-informed-box {
 
 /* ---------- Scroll Reveal Animations ---------- */
 .reveal {
-  opacity: 0;
-  transform: translateY(18px);
-  transition: opacity .7s ease, transform .7s ease;
+  opacity: 1;
+  transition: opacity .6s ease, transform .6s ease;
 }
 
 .reveal.in {

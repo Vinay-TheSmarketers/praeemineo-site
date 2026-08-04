@@ -59,6 +59,12 @@ function splitChars(root) {
 }
 
 /**
+ * Clean, fail-safe text reveal animation for `[data-split-reveal]` headers.
+ * Fades and slides headers smoothly into view without hiding text nodes in broken spans.
+ * @module core/text-reveal
+ */
+
+/**
  * @param {typeof window.gsap} gsap
  * @param {typeof window.ScrollTrigger} ScrollTrigger
  */
@@ -67,23 +73,21 @@ export function initTextReveal(gsap, ScrollTrigger) {
   if (!targets.length) return;
 
   targets.forEach((el) => {
-    const chars = splitChars(el);
-    if (!chars.length) return;
-
-    gsap.set(chars, { yPercent: 100, rotationX: -90, opacity: 0, transformOrigin: '50% 100%' });
-
-    gsap.to(chars, {
-      yPercent: 0,
-      rotationX: 0,
-      opacity: 1,
-      duration: 0.75,
-      ease: 'back.out(1.7)',
-      stagger: 0.02,
-      scrollTrigger: {
-        trigger: el,
-        start: 'top 85%',
-        invalidateOnRefresh: true,
-      },
-    });
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: 22, filter: 'blur(6px)' },
+      {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        duration: 0.85,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 92%',
+          invalidateOnRefresh: true,
+        },
+      }
+    );
   });
 }
