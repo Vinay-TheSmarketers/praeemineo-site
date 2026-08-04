@@ -640,9 +640,9 @@ export function App() {
               <p className="section-desc">Industry depth, not industry tourism. Eight industries we know inside-out. Pre-built ValuePrism™ playbooks, accelerators, and audit packs — so we start halfway, not at zero.</p>
             </div>
 
-            <div className="industry-grid reveal depth-stage">
-              {industries.map((ind, idx) => (
-                <div key={ind.title} className="industry-card" data-scroll-x={idx % 2 === 0 ? "-25" : "25"} data-scroll-z="-20">
+            <div className="industry-grid reveal">
+              {industries.map((ind) => (
+                <div key={ind.title} className="industry-card">
                   <h3>{ind.title}</h3>
                   <p>{ind.desc}</p>
                 </div>
