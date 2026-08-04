@@ -193,6 +193,19 @@ export function App() {
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const context = gsap.context(() => {
+      // 0. Scroll reveal handler for all .reveal elements
+      gsap.utils.toArray(".reveal").forEach((el) => {
+        if (reducedMotion) {
+          el.classList.add("in");
+        } else {
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top 92%",
+            onEnter: () => el.classList.add("in"),
+          });
+        }
+      });
+
       // 1. Reading Progress bar across page
       gsap.to(".reading-progress", {
         scaleX: 1,
