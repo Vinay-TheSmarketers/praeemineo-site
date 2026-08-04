@@ -186,16 +186,15 @@ export function App() {
             clipPath: "inset(0 0 0% 0)",
             ease: "power2.out",
             stagger: .08,
-            scrollTrigger: { trigger: card, start: "top 86%", end: "top 51%", scrub: .65 },
+            scrollTrigger: { trigger: card, start: "top 88%", end: "top 55%", scrub: .65 },
           });
 
           if (!card.closest(".final-moment")) {
             gsap.to(revealTargets, {
-              opacity: .08,
-              filter: "blur(6px)",
-              clipPath: "inset(30% 0 30% 0)",
-              ease: "power1.in",
-              scrollTrigger: { trigger: card, start: "center 46%", end: "bottom 12%", scrub: .65 },
+              opacity: 0,
+              filter: "blur(5px)",
+              ease: "power1.inOut",
+              scrollTrigger: { trigger: card, start: "top 20%", end: "top -15%", scrub: .85 },
             });
           }
         });

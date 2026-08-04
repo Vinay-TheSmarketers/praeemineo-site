@@ -785,9 +785,9 @@ h2.section-title {
 .core-badge {
   position: absolute;
   left: 50%;
-  top: 52.5%;
-  width: 112px;
-  min-height: 66px;
+  top: 53.2%;
+  width: 116px;
+  min-height: 70px;
   display: grid;
   place-items: center;
   padding: 12px;
@@ -811,16 +811,21 @@ h2.section-title {
 }
 
 .prism-label {
-  color: #fff;
+  color: var(--paper);
   font-size: 13px;
   font-weight: 700;
-  text-shadow: 0 2px 12px #000;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.15);
   text-transform: uppercase;
 }
 
-.label-people { left: calc(50% - 78px); top: 48%; transform: rotate(-58deg); }
-.label-business { left: 50%; top: calc(52.5% + 76px); transform: translateX(-50%); }
-.label-customer { left: calc(50% + 43px); top: 48%; transform: rotate(58deg); }
+html.dark-mode .prism-label {
+  color: #fff;
+  text-shadow: 0 2px 12px #000;
+}
+
+.label-people { left: calc(50% - 98px); top: 43.5%; transform: translateY(-50%) rotate(-60deg); }
+.label-business { left: 50%; top: calc(53.2% + 88px); transform: translateX(-50%); }
+.label-customer { left: calc(50% + 42px); top: 43.5%; transform: translateY(-50%) rotate(60deg); }
 
 .process-pill {
   min-width: 120px;
@@ -836,9 +841,9 @@ h2.section-title {
   text-transform: uppercase;
 }
 
-.pill-design { left: 50%; top: 18.5%; transform: translateX(-50%); }
-.pill-assess { left: calc(50% - 270px); top: 73%; }
-.pill-implement { left: calc(50% + 158px); top: 73%; }
+.pill-design { left: 50%; top: 21%; transform: translateX(-50%); }
+.pill-assess { left: calc(50% - 230px); top: 70.5%; transform: translateY(-50%); }
+.pill-implement { left: calc(50% + 115px); top: 70.5%; transform: translateY(-50%); }
 
 .method-node {
   display: flex;
