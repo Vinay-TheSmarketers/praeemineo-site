@@ -67,6 +67,15 @@ const practices = [
   }
 ];
 
+const staticSteps = [
+  { num: "01", name: "Business Process Understanding", desc: "Align technology with your strategic goals. Walk the real processes — not the documented ones." },
+  { num: "02", name: "Re-engineering Assessment", desc: "Identify and transform key processes for future growth. Decide what stays, what changes, what retires." },
+  { num: "03", name: "Innovation Analysis", desc: "Benchmark against industry best practices and SAP's latest capabilities to uncover opportunities for differentiation." },
+  { num: "04", name: "Digitalization Strategy", desc: "Build a roadmap to maximise your SAP transformation — phased, defendable, value-aligned." },
+  { num: "05", name: "Governance Framework", desc: "Ensure compliance, clear communication, and project alignment — including risk, value tracking, and stage-gate approvals." },
+  { num: "06", name: "Execution Excellence", desc: "Deliver precise implementation with ongoing support and optimisation. Senior consultants, end-to-end." }
+];
+
 const industries = [
   { title: "Discrete Manufacturing", desc: "One truthful operating system from engineering to the shop floor." },
   { title: "Automotive", desc: "Stay in lock-step with the OEM — even when the forecast moves at 2 a.m." },
@@ -567,11 +576,33 @@ export function App() {
           </div>
         </section>
 
+        {/* STATIC 6-STEP METHODOLOGY EXECUTION */}
+        <section id="execution" className="exhibit">
+          <div className="spine"></div>
+          <div className="wrap">
+            <div className="exhibit-label">EX. 04 — METHODOLOGY EXECUTION</div>
+            <div className="section-head reveal">
+              <h2 className="section-title" data-split-reveal>Six steps from real-world process to measurable execution.</h2>
+              <p className="section-desc">A structured, proven path connecting strategic objectives to precise technical implementation.</p>
+            </div>
+
+            <div className="steps-grid reveal depth-stage">
+              {staticSteps.map((s) => (
+                <div key={s.num} className="step-card">
+                  <span className="step-num">{s.num}</span>
+                  <h3>{s.name}</h3>
+                  <p>{s.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* INDUSTRIES GRID */}
         <section id="industries" className="exhibit">
           <div className="spine"></div>
           <div className="wrap">
-            <div className="exhibit-label">EX. 04 — INDUSTRIES</div>
+            <div className="exhibit-label">EX. 05 — INDUSTRIES</div>
             <div className="section-head reveal">
               <h2 className="section-title" data-split-reveal>Industries</h2>
               <p className="section-desc">Industry depth, not industry tourism. Eight industries we know inside-out. Pre-built ValuePrism™ playbooks, accelerators, and audit packs — so we start halfway, not at zero.</p>
