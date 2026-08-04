@@ -100,12 +100,12 @@ function FlowTitle({ lines }) {
   ));
 }
 
-function StoryMoment({ id, number, eyebrow, titleLines, children, align = "left", className = "" }) {
+function StoryMoment({ id, number, eyebrow, title, children, align = "left", className = "" }) {
   return (
     <section id={id} className={`moment align-${align} ${className}`} data-stage={number}>
       <div className="story-card">
         <div className="story-index"><span>{number}</span><i /><span>{eyebrow}</span></div>
-        <h2><FlowTitle lines={titleLines} /></h2>
+        <h2>{title}</h2>
         {children}
       </div>
     </section>
@@ -426,17 +426,17 @@ export function App() {
           <div className="hero-veil"></div>
           <div className="spine"></div>
           <div className="wrap">
-            <div className="kicker">EX. 01 — PROVEN SAP® CONSULTING EXPERTISE</div>
-            <h1 className="headline" data-split-reveal>Strengthen your business with proven SAP® consulting expertise.</h1>
-            <p className="hero-sub">Four practices, one ValuePrism™ Lifecycle. We design, implement, manage, and transform — all with senior consultants who've done this before.</p>
+            <div className="kicker">EX. 01 — THESIS</div>
+            <h1 className="headline" data-split-reveal>ECC won't get you to 2030. <em className="highlight-em">Neither will a lift-and-shift.</em></h1>
+            <p className="hero-sub">Moving to the cloud without changing your processes simply moves your legacy debt to a more expensive server. We run S/4HANA and RISE with SAP transformations that audit, refactor, and streamline the decades of custom workarounds quietly accumulated in your ECC estate.</p>
             <div className="hero-cta">
-              <button className="btn btn-primary" onClick={() => jumpTo("contact")}>Book a review ↗</button>
+              <button className="btn btn-primary" onClick={() => jumpTo("contact")}>Book a consultation ↗</button>
               <button className="btn btn-ghost" onClick={() => jumpTo("practice")}>Explore practices</button>
             </div>
             <div className="hero-meta">
               <div><b>2027</b>mainstream ECC maintenance ends</div>
-              <div><b>4</b>core ValuePrism™ practices</div>
-              <div><b>1</b>senior partner-led team</div>
+              <div><b>200+</b>S/4HANA go-lives led</div>
+              <div><b>1</b>partner accountable end to end</div>
             </div>
           </div>
         </section>
@@ -520,43 +520,43 @@ export function App() {
             <section id="core" className="moment hero-moment" data-stage="01">
               <div className="hero-copy">
                 <p className="hero-eyebrow">VALUEPRISM™ METHODOLOGY</p>
-                <h1><span className="hero-flow-line"><span>ValuePrism™ Methodology</span></span><span className="hero-flow-line muted"><span>Realized from the inside out.</span></span></h1>
+                <h1><span className="hero-flow-line"><span>ValuePrism™ Methodology</span></span><span className="hero-flow-line muted"><span>Realize value from the inside out.</span></span></h1>
                 <p className="hero-subtitle">A value-realization framework, refracted through three pillars.</p>
               </div>
               <button className="hero-action" onClick={() => jumpTo("standard")}><span>✦</span> Enter the Core</button>
               <div className="hero-footnote"><span>ETHICS</span><span>PEOPLE</span><span>PERFORMANCE</span><span>CUSTOMER</span></div>
             </section>
 
-            <StoryMoment id="standard" number="02" eyebrow="The Standard" titleLines={["Everything begins", "with what cannot bend."]} align="left">
+            <StoryMoment id="standard" number="02" eyebrow="The Standard" title="Everything begins with a clean core that cannot bend." align="left">
               <p>The core problem in SAP migrations is process drift and shortcut compliance. True value starts by locking in a clean core: clear rules, bulletproof access control, and compliance embedded in the database schema itself.</p>
             </StoryMoment>
 
-            <StoryMoment id="people" number="03" eyebrow="People Pillar" titleLines={["People Pillar", "How we treat our team and yours."]} align="right" className="pillar-moment people-moment">
-              <p>How we treat our team and yours. Built on training and communications, learning and encouraging, and a culture of ethics and compliance.</p>
+            <StoryMoment id="people" number="03" eyebrow="People Pillar" title="Human adoption transforms system capability into daily practice." align="right" className="pillar-moment people-moment">
+              <p>How we treat our team and yours. Built on training and communications, learning and encouraging, and a culture of ethics and compliance that eliminates shadow spreadsheets.</p>
               <span className="micro-proof">THE HUMAN FACE OF VALUE</span>
             </StoryMoment>
 
-            <StoryMoment id="business" number="04" eyebrow="Business Pillar" titleLines={["Business Pillar", "How we deliver."]} align="left" className="pillar-moment business-moment">
-              <p>How we deliver. Built on result-focus, governance and leadership, and continuous improvement.</p>
+            <StoryMoment id="business" number="04" eyebrow="Business Pillar" title="Operational discipline converts performance metrics into measurable cash flow." align="left" className="pillar-moment business-moment">
+              <p>How we deliver. Built on result-focus, governance and leadership, and continuous improvement that connects system integrity directly to financial performance.</p>
               <span className="micro-proof">THE OPERATING FACE OF VALUE</span>
             </StoryMoment>
 
-            <StoryMoment id="customer" number="05" eyebrow="Customer Pillar" titleLines={["Customer Pillar", "How we partner."]} align="right" className="pillar-moment customer-moment">
-              <p>How we partner. Built on customer focus, outstanding customer service, being fair and ethical, and being a value-add for our clients.</p>
+            <StoryMoment id="customer" number="05" eyebrow="Customer Pillar" title="Seamless B2B execution turns supply chain trust into a value multiplier." align="right" className="pillar-moment customer-moment">
+              <p>How we partner. Built on customer focus, outstanding customer service, being fair and ethical, and being a value-add for our clients across every fulfillment touchpoint.</p>
               <span className="micro-proof">THE RELATIONAL FACE OF VALUE</span>
             </StoryMoment>
 
-            <StoryMoment id="process" number="06" eyebrow="The Process" titleLines={["Assess. Design.", "Implement. Repeat."]} align="left" className="process-moment">
-              <p>The methodology stays alive because it never closes. Every implementation creates the evidence for the next assessment.</p>
+            <StoryMoment id="process" number="06" eyebrow="The Process" title="Continuous assessment, fit-to-standard design, and precise implementation." align="left" className="process-moment">
+              <p>The methodology stays alive because it never closes. Every implementation creates the empirical evidence for the next stage of optimization.</p>
               <div className="text-loop"><span>ASSESS</span><i>→</i><span>DESIGN</span><i>→</i><span>IMPLEMENT</span></div>
             </StoryMoment>
 
-            <StoryMoment id="behaviors" number="07" eyebrow="Nine Behaviors" titleLines={["Broad principles.", "Observable practice."]} align="right" className="behavior-moment">
-              <p>Nine waypoints connect intention to action—from governance and leadership to outstanding service and continuous improvement.</p>
+            <StoryMoment id="behaviors" number="07" eyebrow="Nine Behaviors" title="Nine observable actions connecting ethical intention to operational results." align="right" className="behavior-moment">
+              <p>Nine waypoints connect leadership vision to day-to-day execution—from governance and ethical practice to outstanding service and continuous improvement.</p>
               <div className="behavior-proof"><span>01—03</span> Lead with integrity <span>04—06</span> Build capability <span>07—09</span> Improve outcomes</div>
             </StoryMoment>
 
-            <StoryMoment id="full-prism" number="08" eyebrow="The Full ValuePrism" titleLines={["One core.", "One living system."]} align="left" className="final-moment">
+            <StoryMoment id="full-prism" number="08" eyebrow="The Full ValuePrism" title="One core, three pillars, one living operating system." align="left" className="final-moment">
               <p>The core sets the standard. The pillars focus the work. The orbit keeps value moving. Together, culture becomes performance people can feel.</p>
               <blockquote>Value, realized from the inside out.</blockquote>
               <button className="replay-link" onClick={() => jumpTo("core")}>Replay the build <span>↗</span></button>

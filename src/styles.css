@@ -1015,12 +1015,13 @@ html.dark-mode .prism-label {
 }
 
 .story-card h2 {
-  margin: 24px 0 22px;
+  margin: 20px 0 18px;
   font-family: var(--serif);
-  font-size: clamp(42px, 3.8vw, 64px);
+  font-size: clamp(24px, 2.4vw, 36px);
   font-weight: 400;
-  line-height: 1.0;
-  letter-spacing: -.025em;
+  line-height: 1.25;
+  letter-spacing: -.02em;
+  color: var(--paper);
 }
 
 .story-card > p {
