@@ -468,7 +468,10 @@ export function App() {
           <div className="spine"></div>
           <div className="wrap">
             <div className="kicker">EX. 01 — THESIS</div>
-            <h1 className="headline" data-split-reveal>ECC won't get you to 2030. <em className="highlight-em">Neither will a lift-and-shift.</em></h1>
+            <h1 className="headline" data-split-reveal>
+              <span>ECC won't get you to 2030.</span>
+              <em className="highlight-em">Neither will a lift-and-shift.</em>
+            </h1>
             <p className="hero-sub">Moving to the cloud without changing your processes simply moves your legacy debt to a more expensive server. We run S/4HANA and RISE with SAP transformations that audit, refactor, and streamline the decades of custom workarounds quietly accumulated in your ECC estate.</p>
             <div className="hero-cta">
               <button className="btn btn-primary" onClick={() => jumpTo("contact")}>Book a consultation ↗</button>
