@@ -148,6 +148,7 @@ export function App() {
   const [isLightMode, setIsLightMode] = useState(true); // Default to light mode (white and blue)
   const [subscribed, setSubscribed] = useState(false);
   const [emailInput, setEmailInput] = useState("");
+  const [activeAccIndex, setActiveAccIndex] = useState(0);
 
   // Toggle theme class on document element
   useEffect(() => {
@@ -657,25 +658,41 @@ export function App() {
               <p className="section-desc">Our IP turns months into weeks.</p>
             </div>
 
-            <div className="accelerators-grid reveal depth-stage">
-              {accelerators.map((acc) => (
-                <div key={acc.num} className="accelerator-card">
-                  <div className="acc-card-top">
-                    <span className="acc-num">{acc.num}</span>
-                    <span className="acc-tag">{acc.tag}</span>
+            <div className="accelerators-accordion reveal">
+              {accelerators.map((acc, index) => {
+                const isOpen = activeAccIndex === index;
+                return (
+                  <div key={acc.num} className={`acc-accordion-item ${isOpen ? "open" : ""}`}>
+                    <button
+                      className="acc-accordion-header"
+                      onClick={() => setActiveAccIndex(isOpen ? -1 : index)}
+                      aria-expanded={isOpen}
+                    >
+                      <div className="acc-header-left">
+                        <span className="acc-num">{acc.num}</span>
+                        <h3>{acc.name}</h3>
+                      </div>
+                      <div className="acc-header-right">
+                        <span className="acc-tag">{acc.tag}</span>
+                        <span className="acc-toggle-icon">{isOpen ? "−" : "+"}</span>
+                      </div>
+                    </button>
+                    {isOpen && (
+                      <div className="acc-accordion-body">
+                        <p>{acc.desc}</p>
+                        <div className="acc-meta">
+                          <span className="acc-stat">⚡ {acc.stat}</span>
+                          <span className="acc-tech">Stack: {acc.tech}</span>
+                        </div>
+                        <button className="acc-btn" onClick={() => jumpTo("contact")}>
+                          <span>Request demo</span>
+                          <i>↗</i>
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <h3>{acc.name}</h3>
-                  <p>{acc.desc}</p>
-                  <div className="acc-meta">
-                    <span className="acc-stat">⚡ {acc.stat}</span>
-                    <span className="acc-tech">{acc.tech}</span>
-                  </div>
-                  <button className="acc-btn" onClick={() => jumpTo("contact")}>
-                    <span>Request demo</span>
-                    <i>↗</i>
-                  </button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
