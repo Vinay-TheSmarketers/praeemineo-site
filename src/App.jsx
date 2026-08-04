@@ -11,7 +11,6 @@ import { initPointerParallax } from "./js/core/pointer-parallax.js";
 import { initTextReveal } from "./js/core/text-reveal.js";
 import { initPrism } from "./js/components/prism.js";
 
-
 gsap.registerPlugin(ScrollTrigger);
 
 const stages = [
@@ -26,15 +25,73 @@ const stages = [
 ];
 
 const methodNodes = [
-  ["01", "Governance & Leadership"],
-  ["02", "Be Fair & Ethical"],
-  ["03", "Be a Value Add"],
-  ["04", "Training & Communications"],
-  ["05", "Learning & Encouraging"],
+  ["01", "Governance and Leadership"],
+  ["02", "Be Fair and Ethical"],
+  ["03", "Be a Value Add for our Clients"],
+  ["04", "Training and Communications"],
+  ["05", "Learning and Encouraging"],
   ["06", "Customer Focused"],
   ["07", "Result Focused"],
-  ["08", "Outstanding Service"],
+  ["08", "Outstanding Customer Service"],
   ["09", "Continuous Improvement"],
+];
+
+const practices = [
+  {
+    num: "01",
+    tag: "ValuePrism™ Design + Implement",
+    title: "Implementation Services",
+    desc: "Stand up SAP the right way the first time.",
+    link: "#contact"
+  },
+  {
+    num: "02",
+    tag: "ValuePrism™ Transform",
+    title: "Process Optimization",
+    desc: "Make the SAP you already own work harder.",
+    link: "#contact"
+  },
+  {
+    num: "03",
+    tag: "ValuePrism™ Migrate",
+    title: "Upgrades & Migrations",
+    desc: "S/4HANA before 2027 — without the drama.",
+    link: "#contact"
+  },
+  {
+    num: "04",
+    tag: "ValuePrism™ Manage",
+    title: "Application Managed Services",
+    desc: "SAP that runs while you sleep — and improves while it runs.",
+    link: "#contact"
+  }
+];
+
+const bridgeSteps = [
+  { letter: "B", label: "Business Process Understanding", desc: "Align technology with your strategic goals. Walk the real processes — not the documented ones." },
+  { letter: "R", label: "Re-engineering Assessment", desc: "Identify and transform key processes for future growth. Decide what stays, what changes, what retires." },
+  { letter: "I", label: "Innovation Analysis", desc: "Benchmark against industry best practices and SAP's latest capabilities to uncover opportunities for differentiation." },
+  { letter: "D", label: "Digitalization Strategy", desc: "Build a roadmap to maximise your SAP transformation — phased, defendable, value-aligned." },
+  { letter: "G", label: "Governance Framework", desc: "Ensure compliance, clear communication, and project alignment — including risk, value tracking, and stage-gate approvals." },
+  { letter: "E", label: "Execution Excellence", desc: "Deliver precise implementation with ongoing support and optimisation. Senior consultants, end-to-end." }
+];
+
+const industries = [
+  { title: "Discrete Manufacturing", desc: "One truthful operating system from engineering to the shop floor." },
+  { title: "Automotive", desc: "Stay in lock-step with the OEM — even when the forecast moves at 2 a.m." },
+  { title: "Chemical Processing", desc: "Compliance-ready SAP, recipe by recipe, batch by batch." },
+  { title: "CPG / Food & Beverage", desc: "Recall-ready in under an hour. Margin protected, shelf by shelf." },
+  { title: "Consumer Packaged Goods", desc: "Make every dollar of trade-promotion spend visible, attributable, and accountable." },
+  { title: "Health & Life Sciences", desc: "GxP-validated SAP — and a partner with hands-on regulated experience." },
+  { title: "Retail & Fashion", desc: "This season's decisions, on this season's data." },
+  { title: "Wholesale Distribution", desc: "Three levers, one P&L: pick speed, freight cost, customer-specific pricing." }
+];
+
+const accelerators = [
+  { num: "01", name: "ScanIQ", desc: "Templates auto-converted to RF screens for warehouse process optimization." },
+  { num: "02", name: "ClearIQ", desc: "Lockbox processing for payment exceptions, reconciliation, and posting." },
+  { num: "03", name: "InvoiceX", desc: "AI-based document processing of invoices for AP automation." },
+  { num: "04", name: "MDG+", desc: "Framework for SAP MDG adoption with prescriptive build-and-manage." }
 ];
 
 function FlowTitle({ lines }) {
@@ -60,13 +117,17 @@ export function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeStage, setActiveStage] = useState(0);
   const [inValuePrism, setInValuePrism] = useState(false);
-  const [isLightMode, setIsLightMode] = useState(true); // Default to white & blue light mode
+  const [isLightMode, setIsLightMode] = useState(true); // Default to light mode (white and blue)
+  const [subscribed, setSubscribed] = useState(false);
+  const [emailInput, setEmailInput] = useState("");
 
   // Toggle theme class on document element
   useEffect(() => {
     if (isLightMode) {
       document.documentElement.classList.remove("dark-mode");
+      document.documentElement.classList.add("light-mode");
     } else {
+      document.documentElement.classList.remove("light-mode");
       document.documentElement.classList.add("dark-mode");
     }
   }, [isLightMode]);
@@ -89,7 +150,7 @@ export function App() {
     const pctState = { v: 0 };
     gsap.to(pctState, {
       v: 100,
-      duration: 2.15,
+      duration: 1.8,
       ease: "power1.inOut",
       onUpdate: () => {
         if (pctEl) pctEl.textContent = String(Math.round(pctState.v)).padStart(2, "0") + "%";
@@ -98,8 +159,8 @@ export function App() {
 
     const lineTl = gsap.timeline();
     document.querySelectorAll(".pl-line").forEach((el, i) => {
-      lineTl.to(el, { opacity: 1, duration: 0.2 }, i * 0.45)
-            .to(el, { opacity: 0, duration: 0.2 }, i * 0.45 + 0.32);
+      lineTl.to(el, { opacity: 1, duration: 0.2 }, i * 0.38)
+            .to(el, { opacity: 0, duration: 0.2 }, i * 0.38 + 0.28);
     });
 
     const tl = gsap.timeline({
@@ -111,17 +172,17 @@ export function App() {
       defaults: { ease: "power2.inOut" }
     });
 
-    tl.to(".pl-lines line", { opacity: 0.85, duration: 0.45, stagger: 0.06 })
-      .to(".pl-mark", { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, "+=0.9")
-      .to(".preloader-flash", { opacity: 1, duration: 0.12 })
-      .to(".preloader-flash", { opacity: 0, duration: 0.3 })
-      .to("#preloader", { yPercent: -100, duration: 0.7, ease: "power3.inOut" }, "-=.05");
+    tl.to(".pl-lines line", { opacity: 0.85, duration: 0.4, stagger: 0.05 })
+      .to(".pl-mark", { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, "+=0.6")
+      .to(".preloader-flash", { opacity: 1, duration: 0.1 })
+      .to(".preloader-flash", { opacity: 0, duration: 0.25 })
+      .to("#preloader", { yPercent: -100, duration: 0.6, ease: "power3.inOut" }, "-=.05");
 
     const timeout = setTimeout(() => {
       setIsLoading(false);
       document.body.classList.remove("loading");
       ScrollTrigger.refresh();
-    }, 6000);
+    }, 3500);
 
     return () => clearTimeout(timeout);
   }, []);
@@ -218,7 +279,7 @@ export function App() {
           });
         }
 
-        // 7. ASCEND vertical bars rise
+        // 7. BRIDGE vertical bars rise
         gsap.to(".ascend-bar", {
           scaleY: 1,
           duration: .8,
@@ -227,7 +288,7 @@ export function App() {
           scrollTrigger: { trigger: ".ascend-bars", start: "top 85%" }
         });
 
-        // 8. ASCEND letters drop-in
+        // 8. BRIDGE letters drop-in
         gsap.fromTo(".ascend-bar .letter", {
           opacity: 0,
           y: -30,
@@ -240,19 +301,32 @@ export function App() {
           scrollTrigger: { trigger: ".ascend-bars", start: "top 85%" }
         });
 
-        // 9. ASCEND grid cards stagger entrance
+        // 9. BRIDGE grid cards stagger entrance
         gsap.fromTo(".ascend-card", {
           opacity: 0,
-          y: 40,
-          rotationX: -10,
+          y: 35,
+          rotationX: -8,
         }, {
           opacity: 1,
           y: 0,
           rotationX: 0,
-          duration: 0.8,
+          duration: 0.7,
+          stagger: 0.08,
+          ease: "power2.out",
+          scrollTrigger: { trigger: ".ascend-grid", start: "top 90%" }
+        });
+
+        // 10. Accelerators cards stagger
+        gsap.fromTo(".accelerator-card", {
+          opacity: 0,
+          y: 28,
+        }, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
           stagger: 0.1,
           ease: "power2.out",
-          scrollTrigger: { trigger: ".ascend-grid", start: "top 92%" }
+          scrollTrigger: { trigger: ".accelerators-grid", start: "top 88%" }
         });
       }
 
@@ -276,6 +350,13 @@ export function App() {
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (emailInput) {
+      setSubscribed(true);
     }
   };
 
@@ -315,11 +396,11 @@ export function App() {
           PRAE<span>·</span>EMINEO
         </button>
         <nav className="top-nav" aria-label="Main Navigation">
-          <button onClick={() => jumpTo("practice")}>Practice</button>
+          <button onClick={() => jumpTo("practice")}>Practices</button>
           <button onClick={() => jumpTo("methodology")}>Methodology</button>
-          <button onClick={() => jumpTo("ascend")}>ASCEND</button>
+          <button onClick={() => jumpTo("bridge")}>BRIDGE Cycle</button>
           <button onClick={() => jumpTo("industries")}>Industries</button>
-          <button onClick={() => jumpTo("evidence")}>Evidence</button>
+          <button onClick={() => jumpTo("accelerators")}>Accelerators</button>
         </nav>
 
         {/* Dynamic Methodology progress HUD in header */}
@@ -345,17 +426,44 @@ export function App() {
           <div className="hero-veil"></div>
           <div className="spine"></div>
           <div className="wrap">
-            <div className="kicker">EX. 01 — THESIS</div>
-            <h1 className="headline" data-split-reveal>ECC won't get you to 2030. <em>Neither will a lift-and-shift.</em></h1>
-            <p className="hero-sub">Moving to the cloud without changing your processes simply moves your legacy debt to a more expensive server. We run S/4HANA and RISE with SAP transformations that audit, refactor, and streamline the decades of custom workarounds quietly accumulated in your ECC estate.</p>
+            <div className="kicker">EX. 01 — PROVEN SAP® CONSULTING EXPERTISE</div>
+            <h1 className="headline" data-split-reveal>Strengthen your business with proven SAP® consulting expertise.</h1>
+            <p className="hero-sub">Four practices, one ValuePrism™ Lifecycle. We design, implement, manage, and transform — all with senior consultants who've done this before.</p>
             <div className="hero-cta">
-              <button className="btn btn-primary" onClick={() => jumpTo("contact")}>Book a consultation</button>
-              <button className="btn btn-ghost" onClick={() => jumpTo("methodology")}>See how we migrate</button>
+              <button className="btn btn-primary" onClick={() => jumpTo("contact")}>Book a review ↗</button>
+              <button className="btn btn-ghost" onClick={() => jumpTo("practice")}>Explore practices</button>
             </div>
             <div className="hero-meta">
               <div><b>2027</b>mainstream ECC maintenance ends</div>
-              <div><b>200+</b>S/4HANA go-lives led</div>
-              <div><b>1</b>partner accountable end to end</div>
+              <div><b>4</b>core ValuePrism™ practices</div>
+              <div><b>1</b>senior partner-led team</div>
+            </div>
+          </div>
+        </section>
+
+        {/* FOUR CORE PRACTICES SECTION */}
+        <section id="practice" className="exhibit">
+          <div className="spine"></div>
+          <div className="wrap">
+            <div className="exhibit-label">EX. 02 — FOUR PRACTICES, ONE LIFECYCLE</div>
+            <div className="section-head reveal">
+              <h2 className="section-title" data-split-reveal>Our Core SAP® Practices</h2>
+              <p className="section-desc">Stand up, optimize, migrate, and manage SAP with senior consultants who've done it before.</p>
+            </div>
+
+            <div className="practices-grid reveal depth-stage">
+              {practices.map((p) => (
+                <div key={p.num} className="practice-card" data-scroll-x="-20" data-scroll-z="-15" data-scroll-rotate="-3">
+                  <span className="practice-num">{p.num}</span>
+                  <span className="practice-tag">{p.tag}</span>
+                  <h3>{p.title}</h3>
+                  <p>{p.desc}</p>
+                  <button className="practice-link" onClick={() => jumpTo("contact")}>
+                    <span>Explore practice</span>
+                    <i>↗</i>
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -368,59 +476,24 @@ export function App() {
               <div className="marquee-track">
                 <span>Discrete Manufacturing</span>
                 <span>Automotive</span>
-                <span>Chemical &amp; Process</span>
-                <span>CPG &amp; Food and Beverage</span>
-                <span>Life Sciences &amp; Healthcare</span>
-                <span>Retail</span>
+                <span>Chemical Processing</span>
+                <span>CPG / Food &amp; Beverage</span>
+                <span>Consumer Packaged Goods</span>
+                <span>Health &amp; Life Sciences</span>
+                <span>Retail &amp; Fashion</span>
                 <span>Wholesale Distribution</span>
-                <span>Utilities &amp; Energy</span>
                 <span>Discrete Manufacturing</span>
                 <span>Automotive</span>
-                <span>Chemical &amp; Process</span>
-                <span>CPG &amp; Food and Beverage</span>
-                <span>Life Sciences &amp; Healthcare</span>
-                <span>Retail</span>
+                <span>Chemical Processing</span>
+                <span>CPG / Food &amp; Beverage</span>
+                <span>Consumer Packaged Goods</span>
+                <span>Health &amp; Life Sciences</span>
+                <span>Retail &amp; Fashion</span>
                 <span>Wholesale Distribution</span>
-                <span>Utilities &amp; Energy</span>
               </div>
             </div>
           </div>
         </div>
-
-        {/* PRACTICE DISCIPLES */}
-        <section id="practice" className="exhibit">
-          <div className="spine"></div>
-          <div className="wrap">
-            <div className="exhibit-label">EX. 02 — HOW WE'RE BUILT</div>
-            <div className="section-head reveal">
-              <h2 className="section-title" data-split-reveal>Two disciplines. One accountable team.</h2>
-              <p className="section-desc">System integrators hand you a project plan. Hyperscalers hand you infrastructure. We stay until finance closes the books on the new system without a workaround in sight.</p>
-            </div>
-
-            <div className="disciplines reveal depth-stage">
-              <div className="discipline" data-scroll-x="-50" data-scroll-y="30" data-scroll-z="-40" data-scroll-rotate="-5" data-scroll-rotate-axis="y">
-                <span className="num">01 / PROCESS</span>
-                <h3>The case for what changes</h3>
-                <p>Before a single table converts, we map which processes are riding on twenty years of ECC customization — and which of that customization is actually load-bearing.</p>
-                <ul>
-                  <li>Fit-to-standard assessment against SAP Best Practices</li>
-                  <li>Custom code and Z-table rationalization</li>
-                  <li>Business case tied to RISE with SAP licensing</li>
-                </ul>
-              </div>
-              <div className="discipline" data-scroll-x="50" data-scroll-y="30" data-scroll-z="-40" data-scroll-rotate="5" data-scroll-rotate-axis="y">
-                <span className="num">02 / PLATFORM</span>
-                <h3>The system that stays up</h3>
-                <p>We run the technical migration itself — conversion, cloud landscape, and the integrations that quietly kept ECC alive for two decades.</p>
-                <ul>
-                  <li>Brownfield, greenfield, or selective data transition</li>
-                  <li>BTP integration and Business AI (Joule) enablement</li>
-                  <li>Cutover, hypercare, and managed operations</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* METHODOLOGY: 3D VALUEPRISM PINNED STORY */}
         <section id="methodology" className="valueprism-section">
@@ -447,8 +520,8 @@ export function App() {
             <section id="core" className="moment hero-moment" data-stage="01">
               <div className="hero-copy">
                 <p className="hero-eyebrow">VALUEPRISM™ METHODOLOGY</p>
-                <h1><span className="hero-flow-line"><span>Realize value</span></span><span className="hero-flow-line muted"><span>from the inside out.</span></span></h1>
-                <p className="hero-subtitle">A culture of ethics and compliance,<br />refracted through everything you do.</p>
+                <h1><span className="hero-flow-line"><span>ValuePrism™ Methodology</span></span><span className="hero-flow-line muted"><span>Realized from the inside out.</span></span></h1>
+                <p className="hero-subtitle">A value-realization framework, refracted through three pillars.</p>
               </div>
               <button className="hero-action" onClick={() => jumpTo("standard")}><span>✦</span> Enter the Core</button>
               <div className="hero-footnote"><span>ETHICS</span><span>PEOPLE</span><span>PERFORMANCE</span><span>CUSTOMER</span></div>
@@ -458,18 +531,18 @@ export function App() {
               <p>The core problem in SAP migrations is process drift and shortcut compliance. True value starts by locking in a clean core: clear rules, bulletproof access control, and compliance embedded in the database schema itself.</p>
             </StoryMoment>
 
-            <StoryMoment id="people" number="03" eyebrow="People" titleLines={["Value starts with", "how people are treated."]} align="right" className="pillar-moment people-moment">
-              <p>Even the most advanced cloud architecture fails if users find it too complex. We eliminate shadow workarounds and spreadsheets by training, aligning, and empowering teams to adopt the system natively.</p>
+            <StoryMoment id="people" number="03" eyebrow="People Pillar" titleLines={["People Pillar", "How we treat our team and yours."]} align="right" className="pillar-moment people-moment">
+              <p>How we treat our team and yours. Built on training and communications, learning and encouraging, and a culture of ethics and compliance.</p>
               <span className="micro-proof">THE HUMAN FACE OF VALUE</span>
             </StoryMoment>
 
-            <StoryMoment id="business" number="04" eyebrow="Business" titleLines={["Delivery earns trust", "when discipline is visible."]} align="left" className="pillar-moment business-moment">
-              <p>Operational leakage occurs when performance metrics are decoupled from system integrity. We implement real-time process mining, clear KPI dashboards, and structured governance to ensure your RISE investment returns positive cash flow.</p>
+            <StoryMoment id="business" number="04" eyebrow="Business Pillar" titleLines={["Business Pillar", "How we deliver."]} align="left" className="pillar-moment business-moment">
+              <p>How we deliver. Built on result-focus, governance and leadership, and continuous improvement.</p>
               <span className="micro-proof">THE OPERATING FACE OF VALUE</span>
             </StoryMoment>
 
-            <StoryMoment id="customer" number="05" eyebrow="Customer" titleLines={["Partnership becomes", "a value multiplier."]} align="right" className="pillar-moment customer-moment">
-              <p>Migrations shouldn't interrupt your supply chain or order execution. We secure external touchpoints, optimize logistics integrations, and enable smooth B2B self-service portals to compound relational value.</p>
+            <StoryMoment id="customer" number="05" eyebrow="Customer Pillar" titleLines={["Customer Pillar", "How we partner."]} align="right" className="pillar-moment customer-moment">
+              <p>How we partner. Built on customer focus, outstanding customer service, being fair and ethical, and being a value-add for our clients.</p>
               <span className="micro-proof">THE RELATIONAL FACE OF VALUE</span>
             </StoryMoment>
 
@@ -478,7 +551,7 @@ export function App() {
               <div className="text-loop"><span>ASSESS</span><i>→</i><span>DESIGN</span><i>→</i><span>IMPLEMENT</span></div>
             </StoryMoment>
 
-            <StoryMoment id="behaviors" number="07" eyebrow="Nine behaviors" titleLines={["Broad principles.", "Observable practice."]} align="right" className="behavior-moment">
+            <StoryMoment id="behaviors" number="07" eyebrow="Nine Behaviors" titleLines={["Broad principles.", "Observable practice."]} align="right" className="behavior-moment">
               <p>Nine waypoints connect intention to action—from governance and leadership to outstanding service and continuous improvement.</p>
               <div className="behavior-proof"><span>01—03</span> Lead with integrity <span>04—06</span> Build capability <span>07—09</span> Improve outcomes</div>
             </StoryMoment>
@@ -491,14 +564,14 @@ export function App() {
           </div>
         </section>
 
-        {/* THE ASCEND METHOD: SVG TRIANGLE DIAGRAM */}
-        <section id="ascend" className="exhibit">
+        {/* THE BRIDGE METHODOLOGY CYCLE */}
+        <section id="bridge" className="exhibit">
           <div className="spine"></div>
           <div className="wrap">
-            <div className="exhibit-label">EX. 03 — METHODOLOGY</div>
+            <div className="exhibit-label">EX. 04 — METHODOLOGY</div>
             <div className="section-head reveal">
-              <h2 className="section-title" data-split-reveal>One accountable loop, not a stack of workstreams.</h2>
-              <p className="section-desc">Every engagement runs through the same cycle — Process, Platform, and People pulling toward a single point of accountability.</p>
+              <h2 className="section-title" data-split-reveal>BRIDGE Methodology</h2>
+              <p className="section-desc">Six steps from real-world process to measurable execution.</p>
             </div>
 
             <div className="triangle-wrap reveal">
@@ -510,12 +583,12 @@ export function App() {
               <div className="tri-vertex" style={{ left: "5%", top: "89.5%" }}>ASSESS</div>
               <div className="tri-vertex" style={{ left: "95%", top: "89.5%" }}>DELIVER</div>
 
-              <div className="tri-node" style={{ left: "35%", top: "33.4%" }}><span>01</span>Landscape Audit</div>
-              <div className="tri-node" style={{ left: "65%", top: "33.4%" }}><span>02</span>Executive Alignment</div>
-              <div className="tri-node" style={{ left: "80%", top: "61.5%" }}><span>03</span>Fit-to-Standard Design</div>
-              <div className="tri-node" style={{ left: "65%", top: "89.5%" }}><span>04</span>Integration Governance</div>
-              <div className="tri-node" style={{ left: "35%", top: "89.5%" }}><span>05</span>Change Adoption</div>
-              <div className="tri-node" style={{ left: "20%", top: "61.5%" }}><span>06</span>Hypercare &amp; Tuning</div>
+              <div className="tri-node" style={{ left: "35%", top: "33.4%" }}><span>B</span>Process Understanding</div>
+              <div className="tri-node" style={{ left: "65%", top: "33.4%" }}><span>R</span>Re-engineering</div>
+              <div className="tri-node" style={{ left: "80%", top: "61.5%" }}><span>I</span>Innovation Analysis</div>
+              <div className="tri-node" style={{ left: "65%", top: "89.5%" }}><span>D</span>Digitalization</div>
+              <div className="tri-node" style={{ left: "35%", top: "89.5%" }}><span>G</span>Governance</div>
+              <div className="tri-node" style={{ left: "20%", top: "61.5%" }}><span>E</span>Execution</div>
 
               <div className="tri-center">SINGLE POINT<br/>OF<br/>ACCOUNTABILITY</div>
 
@@ -526,44 +599,27 @@ export function App() {
 
             <div className="ascend-wrap">
               <div className="ascend-head reveal">
-                <div className="exhibit-label">THE ASCEND METHOD</div>
-                <h3 className="ascend-title" data-split-reveal>Six steps from legacy ECC to a system people trust.</h3>
+                <div className="exhibit-label">THE BRIDGE LIFECYCLE</div>
+                <h3 className="ascend-title" data-split-reveal>Six steps from real-world process to measurable execution.</h3>
               </div>
 
               <div className="ascend-bars">
-                <div className="ascend-item">
-                  <div className="ascend-bar"><span className="letter">A</span></div>
-                  <div className="ascend-item-label">ASSESS</div>
-                </div>
-                <div className="ascend-item">
-                  <div className="ascend-bar"><span className="letter">S</span></div>
-                  <div className="ascend-item-label">STREAMLINE</div>
-                </div>
-                <div className="ascend-item">
-                  <div className="ascend-bar"><span className="letter">C</span></div>
-                  <div className="ascend-item-label">CONVERT</div>
-                </div>
-                <div className="ascend-item">
-                  <div className="ascend-bar"><span className="letter">E</span></div>
-                  <div className="ascend-item-label">EMBED</div>
-                </div>
-                <div className="ascend-item">
-                  <div className="ascend-bar"><span className="letter">N</span></div>
-                  <div className="ascend-item-label">NAVIGATE</div>
-                </div>
-                <div className="ascend-item">
-                  <div className="ascend-bar"><span className="letter">D</span></div>
-                  <div className="ascend-item-label">DELIVER</div>
-                </div>
+                {bridgeSteps.map((s) => (
+                  <div key={s.letter} className="ascend-item">
+                    <div className="ascend-bar"><span className="letter">{s.letter}</span></div>
+                    <div className="ascend-item-label">{s.letter}</div>
+                  </div>
+                ))}
               </div>
 
               <div className="ascend-grid depth-stage">
-                <div className="ascend-card" data-scroll-x="-20" data-scroll-z="-15" data-scroll-rotate="-3" data-scroll-rotate-axis="x"><span className="letter-tag">A</span><h4>Assess</h4><p>Landscape and custom-code audit against your current ECC or S/4HANA environment, ranked by conversion complexity.</p></div>
-                <div className="ascend-card" data-scroll-x="20" data-scroll-z="-15" data-scroll-rotate="3" data-scroll-rotate-axis="x"><span className="letter-tag">S</span><h4>Streamline</h4><p>Fit-to-standard redesign of the processes still riding on twenty years of workarounds.</p></div>
-                <div className="ascend-card" data-scroll-x="-20" data-scroll-z="-15" data-scroll-rotate="-3" data-scroll-rotate-axis="x"><span className="letter-tag">C</span><h4>Convert</h4><p>Core system build and data migration, tested against your real transaction volumes.</p></div>
-                <div className="ascend-card" data-scroll-x="20" data-scroll-z="-15" data-scroll-rotate="3" data-scroll-rotate-axis="x"><span className="letter-tag">E</span><h4>Embed</h4><p>BTP integration and Business AI (Joule) wired into the processes that need it, not bolted on after.</p></div>
-                <div className="ascend-card" data-scroll-x="-20" data-scroll-z="-15" data-scroll-rotate="-3" data-scroll-rotate-axis="x"><span className="letter-tag">N</span><h4>Navigate</h4><p>Change management and training so the new system gets adopted, not quietly routed around.</p></div>
-                <div className="ascend-card" data-scroll-x="20" data-scroll-z="-15" data-scroll-rotate="3" data-scroll-rotate-axis="x"><span className="letter-tag">D</span><h4>Deliver</h4><p>Cutover, hypercare, and a managed operations model your team can run without us.</p></div>
+                {bridgeSteps.map((s, idx) => (
+                  <div key={s.letter} className="ascend-card" data-scroll-x={idx % 2 === 0 ? "-20" : "20"} data-scroll-z="-15" data-scroll-rotate={idx % 2 === 0 ? "-3" : "3"}>
+                    <span className="letter-tag">{s.letter}</span>
+                    <h4>{s.label}</h4>
+                    <p>{s.desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -573,94 +629,82 @@ export function App() {
         <section id="industries" className="exhibit">
           <div className="spine"></div>
           <div className="wrap">
-            <div className="exhibit-label">EX. 04 — INDUSTRIES</div>
+            <div className="exhibit-label">EX. 05 — INDUSTRIES</div>
             <div className="section-head reveal">
-              <h2 className="section-title" data-split-reveal>Depth in the industries that run on SAP.</h2>
-              <p className="section-desc">Pre-built accelerators and fit-to-standard playbooks for the eight sectors where we operate.</p>
+              <h2 className="section-title" data-split-reveal>Industries</h2>
+              <p className="section-desc">Industry depth, not industry tourism. Eight industries we know inside-out. Pre-built ValuePrism™ playbooks, accelerators, and audit packs — so we start halfway, not at zero.</p>
             </div>
 
             <div className="industry-grid reveal depth-stage">
-              <div className="industry-card" data-scroll-x="-30" data-scroll-y="20" data-scroll-z="-25" data-scroll-rotate="-4">
-                <h3>Discrete Manufacturing</h3>
-                <p>One system of record from engineering change to the shop floor — no shadow spreadsheets closing the gap.</p>
-              </div>
-              <div className="industry-card" data-scroll-x="26" data-scroll-y="-14" data-scroll-z="-40" data-scroll-rotate="3">
-                <h3>Automotive</h3>
-                <p>EDI and JIT/JIS sequencing that stays in lock-step with the OEM, even when the release schedule moves overnight.</p>
-              </div>
-              <div className="industry-card" data-scroll-x="-22" data-scroll-y="28" data-scroll-z="-18" data-scroll-rotate="-3">
-                <h3>Chemical &amp; Process</h3>
-                <p>Batch and recipe management that holds up to regulatory audit, formula by formula.</p>
-              </div>
-              <div className="industry-card" data-scroll-x="32" data-scroll-y="-18" data-scroll-z="-32" data-scroll-rotate="4">
-                <h3>CPG &amp; Food and Beverage</h3>
-                <p>Trade spend and lot traceability visible enough to defend a recall in under an hour.</p>
-              </div>
-              <div className="industry-card" data-scroll-x="-28" data-scroll-y="16" data-scroll-z="-22" data-scroll-rotate="-3">
-                <h3>Life Sciences &amp; Healthcare</h3>
-                <p>GxP-validated builds, run by a team that has actually sat through the qualification.</p>
-              </div>
-              <div className="industry-card" data-scroll-x="24" data-scroll-y="-22" data-scroll-z="-38" data-scroll-rotate="3">
-                <h3>Retail</h3>
-                <p>Seasonal assortment and pricing decisions made on this week's data, not last quarter's.</p>
-              </div>
-              <div className="industry-card" data-scroll-x="-34" data-scroll-y="20" data-scroll-z="-24" data-scroll-rotate="-4">
-                <h3>Wholesale Distribution</h3>
-                <p>Freight, fulfillment speed, and customer-specific pricing reconciled on one P&amp;L.</p>
-              </div>
-              <div className="industry-card" data-scroll-x="28" data-scroll-y="-16" data-scroll-z="-30" data-scroll-rotate="3">
-                <h3>Utilities &amp; Energy</h3>
-                <p>Asset-heavy maintenance and plant reliability, engineered into EAM from day one.</p>
-              </div>
+              {industries.map((ind, idx) => (
+                <div key={ind.title} className="industry-card" data-scroll-x={idx % 2 === 0 ? "-25" : "25"} data-scroll-z="-20">
+                  <h3>{ind.title}</h3>
+                  <p>{ind.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* EVIDENCE CARDS */}
-        <section id="evidence" className="exhibit">
+        {/* PRODUCT ACCELERATORS */}
+        <section id="accelerators" className="exhibit">
           <div className="spine"></div>
           <div className="wrap">
-            <div className="parallax-num" aria-hidden="true" data-scroll-y="-40" data-scroll-z="-20">06</div>
-            <div className="exhibit-label">EX. 05 — EVIDENCE</div>
+            <div className="exhibit-label">EX. 06 — PROPRIETARY IP</div>
             <div className="section-head reveal">
-              <h2 className="section-title" data-split-reveal>Notes from the landscape.</h2>
-              <p className="section-desc">Short, specific writing on what actually breaks in an S/4HANA migration — and what to fix before it does.</p>
+              <h2 className="section-title" data-split-reveal>Product Accelerators</h2>
+              <p className="section-desc">Our IP turns months into weeks.</p>
             </div>
 
-            <div className="evidence-grid reveal depth-stage">
-              <div className="card" data-scroll-x="-36" data-scroll-z="-30" data-scroll-rotate="-4" data-scroll-rotate-axis="y">
-                <span className="tag">DEADLINE</span>
-                <h3>2027 isn't a software problem, it's a budget problem</h3>
-                <p>Mainstream ECC maintenance ends in 2027. Every quarter a business waits is a quarter closer to a forced migration on someone else's timeline, at someone else's price.</p>
-                <div className="read">6 min read</div>
-              </div>
-              <div className="card" data-scroll-y="26" data-scroll-z="-46">
-                <span className="tag">CUSTOM CODE</span>
-                <h3>The Z-table nobody remembers writing still runs payroll</h3>
-                <p>Most ECC estates carry a decade of custom code no one can explain anymore. A clean conversion has to decide, table by table, what's load-bearing and what's just debt.</p>
-                <div className="read">5 min read</div>
-              </div>
-              <div className="card" data-scroll-x="36" data-scroll-z="-30" data-scroll-rotate="4" data-scroll-rotate-axis="y">
-                <span className="tag">RISE WITH SAP</span>
-                <h3>RISE changes the contract, not just the hosting</h3>
-                <p>Moving to RISE with SAP resets the commercial relationship as much as the technical one. The migrations that go well treat it as both from day one.</p>
-                <div className="read">7 min read</div>
-              </div>
+            <div className="accelerators-grid reveal depth-stage">
+              {accelerators.map((acc) => (
+                <div key={acc.num} className="accelerator-card">
+                  <span className="acc-num">{acc.num}</span>
+                  <h3>{acc.name}</h3>
+                  <p>{acc.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* CTA CONTACT */}
+        {/* CTA CONTACT & NEWSLETTER BAND */}
         <section className="cta-band" id="contact">
           <div className="wrap reveal">
             <div className="row">
-              <h2 data-split-reveal>Start with Phase 01 of ASCEND — the landscape audit.</h2>
-              <div className="side">Book a 30-minute working session with a partner. We'll map your industry's fit-to-standard accelerators and tell you, within a week, what your ASCEND path actually costs.</div>
+              <h2 data-split-reveal>Ready to RISE calmly?</h2>
+              <div className="side">Book a 30-min architecture review with a senior solution architect. No slideshows. Just a working session.</div>
             </div>
             <div className="hero-cta">
-              <button className="btn btn-primary" onClick={() => jumpTo("contact")}>Book a consultation</button>
-              <button className="btn btn-ghost" onClick={() => jumpTo("industries")}>See your industry</button>
+              <button className="btn btn-primary" onClick={() => jumpTo("contact")}>Book a review ↗</button>
+              <button className="btn btn-ghost" onClick={() => jumpTo("industries")}>See customer stories</button>
             </div>
+
+            {/* Stay Informed Newsletter Section */}
+            <div className="stay-informed-box">
+              <div className="stay-informed-text">
+                <h3>Stay informed</h3>
+                <p>Practical SAP perspectives, written by people who deliver them.</p>
+              </div>
+              <form onSubmit={handleSubscribe} className="subscribe-form">
+                {subscribed ? (
+                  <div className="subscribe-success">✓ Thank you for subscribing!</div>
+                ) : (
+                  <>
+                    <input
+                      type="email"
+                      required
+                      placeholder="Enter your work email..."
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      className="subscribe-input"
+                    />
+                    <button type="submit" className="btn btn-primary subscribe-btn">Subscribe</button>
+                  </>
+                )}
+              </form>
+            </div>
+            <p className="privacy-disclaimer">By subscribing you agree to our Privacy Policy.</p>
           </div>
         </section>
       </main>
@@ -668,33 +712,49 @@ export function App() {
       <footer>
         <div className="wrap">
           <div className="footer-top">
-            <div className="logo">PRAE<span>·</span>EMINEO</div>
+            <div className="footer-brand">
+              <div className="logo">PRAE<span>·</span>EMINEO</div>
+              <p className="footer-tagline">Senior, partner-led SAP firm for manufacturing-anchored mid-market clients.</p>
+            </div>
             <div className="footer-cols">
               <div className="footer-col">
-                <h5>FIRM</h5>
-                <button onClick={() => jumpTo("practice")}>Practice</button>
-                <button onClick={() => jumpTo("industries")}>Industries</button>
+                <h5>SERVICES</h5>
+                <button onClick={() => jumpTo("practice")}>Implementation Services</button>
+                <button onClick={() => jumpTo("practice")}>Process Optimization</button>
+                <button onClick={() => jumpTo("practice")}>Upgrades &amp; Migrations</button>
+                <button onClick={() => jumpTo("practice")}>Application Managed Services</button>
+              </div>
+              <div className="footer-col">
+                <h5>SOLUTIONS</h5>
+                <button onClick={() => jumpTo("practice")}>RISE with SAP</button>
+                <button onClick={() => jumpTo("practice")}>GROW with SAP</button>
+                <button onClick={() => jumpTo("practice")}>S/4HANA Migration</button>
+                <button onClick={() => jumpTo("practice")}>SAP Business AI &amp; Joule</button>
+                <button onClick={() => jumpTo("practice")}>SAP BTP &amp; Datasphere</button>
+                <button onClick={() => jumpTo("accelerators")}>ValuePrism™ Products</button>
+                <button onClick={() => jumpTo("industries")}>ValuePrism™ Industry</button>
+              </div>
+              <div className="footer-col">
+                <h5>INDUSTRIES</h5>
+                <button onClick={() => jumpTo("industries")}>Discrete Manufacturing</button>
+                <button onClick={() => jumpTo("industries")}>Automotive</button>
+                <button onClick={() => jumpTo("industries")}>Chemical Processing</button>
+                <button onClick={() => jumpTo("industries")}>CPG / Food &amp; Beverage</button>
+                <button onClick={() => jumpTo("industries")}>Consumer Packaged Goods</button>
+                <button onClick={() => jumpTo("industries")}>Health &amp; Life Sciences</button>
+              </div>
+              <div className="footer-col">
+                <h5>COMPANY</h5>
+                <button onClick={() => jumpTo("practice")}>Why Praeemineo</button>
                 <button onClick={() => jumpTo("methodology")}>Methodology</button>
-                <button onClick={() => jumpTo("evidence")}>Evidence</button>
-                <button>Careers</button>
-              </div>
-              <div className="footer-col">
-                <h5>SECTORS</h5>
-                <button onClick={() => jumpTo("industries")}>Manufacturing</button>
-                <button onClick={() => jumpTo("industries")}>Retail &amp; CPG</button>
-                <button onClick={() => jumpTo("industries")}>Utilities &amp; Energy</button>
-                <button onClick={() => jumpTo("industries")}>Public Sector</button>
-              </div>
-              <div className="footer-col">
-                <h5>CONTACT</h5>
-                <button onClick={() => jumpTo("contact")}>Book consultation</button>
-                <button>Press</button>
+                <button onClick={() => jumpTo("bridge")}>BRIDGE Cycle</button>
+                <button onClick={() => jumpTo("contact")}>Careers</button>
+                <button onClick={() => jumpTo("contact")}>Contact</button>
               </div>
             </div>
           </div>
           <div className="footer-bottom">
-            <span>&copy; 2026 Praeemineo. All rights reserved.</span>
-            <span>Privacy &middot; Terms</span>
+            <span>&copy; 2026 Praeemineo. All rights reserved. SAP, S/4HANA, and other SAP products are trademarks of SAP SE.</span>
           </div>
         </div>
       </footer>
