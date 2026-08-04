@@ -1,0 +1,2875 @@
+<!DOCTYPE html>
+<html lang="en" class="light-mode">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Praeemineo — SAP Transformation and RISE with SAP Consulting</title>
+  
+  <!-- Preconnect & Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- CDNs for WebGL and Motion -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+  <style>
+    :root {
+      /* Default: Light Mode (white and blue) */
+      --ink: #F8FAFC;
+      --ink-2: #FFFFFF;
+      --paper: #0F172A;
+      --paper-dim: #334155;
+      --cobalt: #0044FF;
+      --cobalt-bright: #3b82f6;
+      --brass: #B08D3F;
+      --graphite: #475569;
+      --slate: #E2E8F0;
+      --ink-on-paper: #FFFFFF;
+      --serif: 'Fraunces', serif;
+      --sans: 'Inter', sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+
+    html.dark-mode {
+      /* Dark Mode */
+      --ink: #0B0E13;
+      --ink-2: #12151C;
+      --paper: #F3EFE6;
+      --paper-dim: #E7E1D2;
+      --cobalt: #3355FF;
+      --cobalt-bright: #5C7CFF;
+      --brass: #B08D3F;
+      --graphite: #8890A0;
+      --slate: #2A2F3A;
+      --ink-on-paper: #14171D;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--ink);
+    }
+
+    body {
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--sans);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    body.loading {
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    ::selection {
+      background: var(--cobalt);
+      color: #fff;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--cobalt-bright);
+      outline-offset: 3px;
+    }
+
+    .wrap {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* ---------- Spine / signature element ---------- */
+    .spine {
+      position: absolute;
+      left: 32px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--brass) 6%, var(--brass) 94%, transparent);
+      opacity: .35;
+      display: none;
+      z-index: 2;
+    }
+
+    @media(min-width: 900px) {
+      .spine {
+        display: block;
+      }
+    }
+
+    .exhibit {
+      position: relative;
+    }
+
+    .exhibit-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      color: var(--brass);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+      text-transform: uppercase;
+    }
+
+    .exhibit-label::before {
+      content: '';
+      width: 16px;
+      height: 1px;
+      background: var(--brass);
+    }
+
+    /* ---------- Depth stage: perspective root ---------- */
+    .depth-stage {
+      perspective: 1200px;
+      transform-style: preserve-3d;
+    }
+
+    /* ---------- Preloader ---------- */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #preloader svg {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    #preloader .pl-mark {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .preloader-flash {
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .preloader-pct {
+      position: absolute;
+      bottom: calc(50% - 155px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: .1em;
+      color: var(--brass);
+    }
+
+    .preloader-insights {
+      position: absolute;
+      bottom: calc(50% - 122px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 340px;
+      height: 20px;
+    }
+
+    .pl-line {
+      position: absolute;
+      inset: 0;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      color: var(--graphite);
+      opacity: 0;
+    }
+
+    /* ---------- Header Navigation (Floating Glass) ---------- */
+    .site-header {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      z-index: 50;
+      width: min(calc(100% - 36px), 78vw, 1180px);
+      height: 58px;
+      display: grid;
+      grid-template-columns: auto 1fr auto auto auto;
+      align-items: center;
+      gap: 20px;
+      padding: 0 8px 0 24px;
+      border: 1px solid rgba(176, 141, 63, .12);
+      border-radius: 12px;
+      background: var(--ink-2);
+      opacity: 0.95;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, .12), inset 0 1px 0 rgba(255, 255, 255, .03);
+      backdrop-filter: blur(16px);
+      transform: translateX(-50%);
+    }
+
+    html.dark-mode .site-header {
+      background: rgba(11, 14, 19, .84);
+      box-shadow: 0 20px 80px rgba(0, 0, 0, .45);
+    }
+
+    .wordmark {
+      font-family: var(--serif);
+      font-size: 19px;
+      letter-spacing: .03em;
+      font-weight: 500;
+      color: var(--paper);
+    }
+
+    .wordmark span {
+      color: var(--brass);
+    }
+
+    .top-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .top-nav button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: var(--graphite);
+      font-size: 13px;
+      font-weight: 500;
+      transition: color .2s ease, background .2s ease;
+    }
+
+    .top-nav button:hover,
+    .top-nav button:focus-visible {
+      color: var(--paper);
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .stage-status {
+      justify-self: end;
+      color: var(--graphite);
+      font-size: 10px;
+      font-family: var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      margin-right: 12px;
+    }
+
+    .stage-status.visible {
+      opacity: 1;
+    }
+
+    .stage-status span {
+      color: var(--brass);
+    }
+
+    .theme-toggle {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--slate);
+      color: var(--paper-dim);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--slate);
+      color: var(--paper);
+      border-color: var(--cobalt-bright);
+    }
+
+    .full-prism-link {
+      padding: 10px 18px;
+      border-radius: 8px;
+      color: #fff;
+      background: var(--cobalt);
+      font-size: 12px;
+      font-weight: 600;
+      transition: background .2s ease, transform .2s ease;
+      box-shadow: 0 6px 20px rgba(51, 85, 255, .25);
+    }
+
+    .full-prism-link:hover {
+      background: var(--cobalt-bright);
+    }
+
+    .full-prism-link i {
+      margin-left: 6px;
+      font-style: normal;
+    }
+
+    .full-mobile-label {
+      display: none;
+    }
+
+    .reading-progress {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: -1px;
+      height: 1px;
+      display: block;
+      background: linear-gradient(90deg, transparent, var(--brass), var(--cobalt-bright), transparent);
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+
+    @media(max-width: 900px) {
+      .site-header {
+        width: min(calc(100% - 24px), 95vw);
+        gap: 12px;
+        padding-left: 16px;
+        grid-template-columns: 1fr auto auto;
+      }
+      .top-nav {
+        display: none;
+      }
+      .stage-status {
+        display: none;
+      }
+    }
+
+    @media(max-width: 680px) {
+      .site-header {
+        height: 50px;
+      }
+      .wordmark {
+        font-size: 16px;
+      }
+      .full-prism-link {
+        padding: 8px 12px;
+        font-size: 10px;
+      }
+      .full-desktop-label {
+        display: none;
+      }
+      .full-mobile-label {
+        display: inline;
+      }
+      .full-prism-link i {
+        display: none;
+      }
+    }
+
+    /* ---------- Hero Section ---------- */
+    .hero {
+      padding: 180px 0 130px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #fluid-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      display: block;
+    }
+
+    .hero-veil {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(var(--ink), .15) 0%, rgba(var(--ink), .5) 60%, var(--ink) 100%);
+    }
+
+    .hero .wrap {
+      position: relative;
+      z-index: 2;
+      padding-left: 32px;
+    }
+
+    @media(min-width: 900px) {
+      .hero .wrap {
+        padding-left: 72px;
+      }
+    }
+
+    .kicker {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .14em;
+      color: var(--brass);
+      margin-bottom: 28px;
+      text-transform: uppercase;
+    }
+
+    h1.headline {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(38px, 6vw, 76px);
+      line-height: 1.04;
+      max-width: 16ch;
+      letter-spacing: -.02em;
+    }
+
+    h1.headline em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--graphite);
+    }
+
+    .hero-sub {
+      max-width: 52ch;
+      margin-top: 28px;
+      font-size: 18px;
+      color: var(--graphite);
+      line-height: 1.6;
+    }
+
+    .hero-cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .btn {
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 24px;
+      border-radius: 4px;
+      display: inline-block;
+      transition: transform .2s ease, background .2s ease, color .2s ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--cobalt);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 18px rgba(51, 85, 255, .2);
+    }
+
+    .btn-primary:hover {
+      background: var(--cobalt-bright);
+    }
+
+    .btn-ghost {
+      border: 1px solid var(--slate);
+      color: var(--paper);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--brass);
+      color: var(--brass);
+    }
+
+    .hero-meta {
+      margin-top: 64px;
+      display: flex;
+      gap: 48px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--graphite);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .hero-meta b {
+      color: var(--paper);
+      font-family: var(--sans);
+      font-weight: 600;
+      display: block;
+      font-size: 24px;
+      margin-bottom: 6px;
+      letter-spacing: -.01em;
+    }
+
+    /* ---------- Sector Marquee Strip ---------- */
+    .sectors {
+      border-top: 1px solid var(--slate);
+      border-bottom: 1px solid var(--slate);
+      padding: 26px 0;
+      overflow: hidden;
+      background: rgba(100, 116, 139, 0.03);
+    }
+
+    .sectors .wrap {
+      display: flex;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .sectors-label {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--graphite);
+      letter-spacing: .08em;
+      white-space: nowrap;
+      flex: none;
+    }
+
+    .marquee {
+      overflow: hidden;
+      flex: 1;
+      mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 40px;
+      width: max-content;
+      animation: marquee-scroll 28s linear infinite;
+    }
+
+    .sectors:hover .marquee-track {
+      animation-play-state: paused;
+    }
+
+    .marquee-track span {
+      font-size: 14px;
+      color: var(--graphite);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+
+    .marquee-track span::after {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--brass);
+      display: inline-block;
+      margin-left: 40px;
+    }
+
+    @keyframes marquee-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ---------- Section Layouts ---------- */
+    section {
+      padding: 120px 0;
+      position: relative;
+    }
+
+    section .wrap {
+      padding-left: 32px;
+    }
+
+    @media(min-width: 900px) {
+      section .wrap {
+        padding-left: 72px;
+      }
+    }
+
+    .section-head {
+      max-width: 680px;
+      margin-bottom: 64px;
+    }
+
+    h2.section-title {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(28px, 4vw, 45px);
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+
+    .section-desc {
+      color: var(--graphite);
+      margin-top: 18px;
+      font-size: 16.5px;
+      line-height: 1.6;
+      max-width: 58ch;
+    }
+
+    /* ---------- Two disciplines ---------- */
+    .disciplines {
+      display: grid;
+      gap: 1px;
+      background: var(--slate);
+      border: 1px solid var(--slate);
+      margin-top: 40px;
+    }
+
+    @media(min-width: 800px) {
+      .disciplines {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .discipline {
+      background: var(--ink-2);
+      padding: 56px 44px;
+      transition: background .25s ease;
+    }
+
+    .discipline:hover {
+      background: rgba(100, 116, 139, 0.02);
+    }
+
+    .discipline .num {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--brass);
+      margin-bottom: 24px;
+      display: block;
+    }
+
+    .discipline h3 {
+      font-family: var(--serif);
+      font-size: 30px;
+      font-weight: 400;
+      margin-bottom: 18px;
+    }
+
+    .discipline p {
+      color: var(--graphite);
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 44ch;
+    }
+
+    .discipline ul {
+      margin-top: 28px;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .discipline li {
+      font-size: 14.5px;
+      color: var(--paper);
+      padding-left: 18px;
+      position: relative;
+    }
+
+    .discipline li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 8px;
+      height: 1px;
+      background: var(--cobalt-bright);
+    }
+
+    /* ---------- ValuePrism Pinned Methodology Section ---------- */
+    .valueprism-section {
+      position: relative;
+      height: 800vh; /* 8 chapters */
+      padding: 0;
+      background: var(--ink);
+    }
+
+    .valueprism-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .scene-stage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .three-host {
+      width: 100%;
+      height: 100%;
+    }
+
+    .stage-atmosphere {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 50%, transparent 20%, rgba(var(--ink), .2) 60%, var(--ink) 100%);
+      z-index: 2;
+    }
+
+    .scene-interface {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    /* Precise HUD placements from target visual mockup specs */
+    .core-badge {
+      position: absolute;
+      left: 50%;
+      top: 52.5%;
+      width: 112px;
+      min-height: 66px;
+      display: grid;
+      place-items: center;
+      padding: 12px;
+      border-radius: 50%;
+      color: #08111c;
+      background: rgba(248, 252, 255, .94);
+      box-shadow: 0 0 34px rgba(107, 215, 255, .27);
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: .035em;
+      text-align: center;
+      transform: translate(-50%, -50%);
+      text-transform: uppercase;
+    }
+
+    .prism-label,
+    .process-pill,
+    .method-node {
+      position: absolute;
+    }
+
+    .prism-label {
+      color: var(--paper);
+      font-size: 13px;
+      font-weight: 700;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      text-transform: uppercase;
+    }
+
+    html.dark-mode .prism-label {
+      color: #fff;
+      text-shadow: 0 2px 12px #000;
+    }
+
+    .label-people { left: calc(50% - 78px); top: 48%; transform: rotate(-58deg); }
+    .label-business { left: 50%; top: calc(52.5% + 76px); transform: translateX(-50%); }
+    .label-customer { left: calc(50% + 43px); top: 48%; transform: rotate(58deg); }
+
+    .process-pill {
+      min-width: 120px;
+      padding: 11px 20px;
+      border: 1px solid rgba(126, 225, 255, .22);
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(145deg, rgba(56, 176, 244, .96), rgba(32, 79, 176, .9));
+      box-shadow: 0 10px 35px rgba(21, 91, 183, .2), inset 0 1px 0 rgba(255, 255, 255, .22);
+      font-size: 13.5px;
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .pill-design { left: 50%; top: 18.5%; transform: translateX(-50%); }
+    .pill-assess { left: calc(50% - 270px); top: 73%; }
+    .pill-implement { left: calc(50% + 158px); top: 73%; }
+
+    .method-node {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--graphite);
+      font-size: 10px;
+      white-space: nowrap;
+      transform: translate(-50%, -50%);
+    }
+
+    .method-node b {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      border: 1px solid rgba(231, 247, 255, .82);
+      border-radius: 50%;
+      color: #fff;
+      background: rgba(5, 9, 22, .84);
+      box-shadow: 0 0 0 5px rgba(63, 160, 227, .07);
+      font-size: 10px;
+    }
+
+    .method-node em {
+      max-width: 105px;
+      font-style: normal;
+      white-space: normal;
+      line-height: 1.25;
+    }
+
+    .node-1 { left: 57%; top: 28%; }
+    .node-2 { left: 64%; top: 43%; }
+    .node-3 { left: 68%; top: 61%; }
+    .node-4 { left: 60%; top: 76%; }
+    .node-5 { left: 50%; top: 78%; }
+    .node-6 { left: 40%; top: 76%; }
+    .node-7 { left: 32%; top: 61%; }
+    .node-8 { left: 36%; top: 43%; }
+    .node-9 { left: 43%; top: 28%; }
+
+    .scroll-flow {
+      position: relative;
+      z-index: 2;
+      margin-top: -100vh;
+      pointer-events: none;
+    }
+
+    .moment {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px clamp(32px, 8vw, 150px);
+      pointer-events: none;
+    }
+
+    .moment.hero-moment {
+      position: relative;
+      min-height: 140vh;
+      display: block;
+      padding-top: 140px;
+      text-align: center;
+    }
+
+    .moment.hero-moment .hero-copy {
+      margin: 0 auto;
+    }
+
+    .hero-copy h1 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 4.4vw, 68px);
+      font-weight: 400;
+      line-height: 1.02;
+      letter-spacing: -.03em;
+    }
+
+    .hero-copy h1 span {
+      display: block;
+    }
+
+    .hero-copy h1 .muted {
+      color: var(--graphite);
+    }
+
+    .hero-subtitle {
+      margin: 22px auto 0;
+      max-width: 38ch;
+      color: var(--graphite);
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    .hero-action {
+      position: absolute;
+      left: 50%;
+      top: 76vh;
+      z-index: 4;
+      padding: 11px 16px;
+      border: 1px solid rgba(176, 141, 63, .2);
+      border-radius: 8px;
+      color: var(--paper);
+      background: rgba(11, 14, 19, .65);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .4), inset 0 1px rgba(255, 255, 255, .03);
+      backdrop-filter: blur(12px);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transform: translateX(-50%);
+      pointer-events: auto;
+      transition: border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .hero-action:hover {
+      border-color: var(--brass);
+      color: var(--brass);
+    }
+
+    .hero-action span {
+      margin-right: 6px;
+      color: var(--brass);
+    }
+
+    .hero-footnote {
+      position: absolute;
+      left: clamp(25px, 8vw, 130px);
+      right: clamp(25px, 8vw, 130px);
+      top: 92vh;
+      display: flex;
+      justify-content: space-between;
+      color: var(--slate);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .18em;
+    }
+
+    .story-card {
+      width: min(100%, 460px);
+      padding-top: 26px;
+      border-top: 1px solid rgba(176, 141, 63, .12);
+      pointer-events: auto;
+    }
+
+    .final-moment .story-card {
+      width: min(100%, 360px);
+    }
+
+    .align-right .story-card {
+      margin-left: auto;
+    }
+
+    .story-index {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--graphite);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .story-index i {
+      width: 42px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--brass), rgba(176, 141, 63, .08));
+    }
+
+    .story-card h2 {
+      margin: 24px 0 22px;
+      font-family: var(--serif);
+      font-size: clamp(42px, 3.8vw, 64px);
+      font-weight: 400;
+      line-height: 1.0;
+      letter-spacing: -.025em;
+    }
+
+    .story-card > p {
+      margin: 0;
+      color: var(--graphite);
+      font-size: clamp(15px, 1.2vw, 17px);
+      line-height: 1.72;
+    }
+
+    .micro-proof {
+      display: block;
+      margin-top: 26px;
+      color: var(--slate);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .2em;
+    }
+
+    .people-moment .story-index { color: #d3b165; }
+    .business-moment .story-index { color: var(--graphite); }
+    .customer-moment .story-index { color: var(--cobalt-bright); }
+
+    .text-loop {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 30px;
+      color: var(--graphite);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .14em;
+    }
+
+    .text-loop span {
+      padding: 8px 10px;
+      border: 1px solid rgba(176, 141, 63, .15);
+      border-radius: 999px;
+    }
+
+    .text-loop i {
+      color: var(--slate);
+      font-style: normal;
+    }
+
+    .behavior-proof {
+      margin-top: 27px;
+      color: var(--slate);
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 2;
+    }
+
+    .behavior-proof span {
+      margin-right: 7px;
+      color: var(--graphite);
+    }
+
+    .behavior-proof span:not(:first-child) {
+      margin-left: 12px;
+    }
+
+    blockquote {
+      margin: 32px 0 26px;
+      padding-left: 18px;
+      border-left: 1px solid var(--brass);
+      color: var(--paper);
+      font-family: var(--serif);
+      font-size: 22px;
+      line-height: 1.5;
+    }
+
+    .replay-link {
+      position: relative;
+      padding: 8px 0;
+      border: 0;
+      color: var(--brass);
+      background: transparent;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      pointer-events: auto;
+    }
+
+    .replay-link span {
+      margin-left: 7px;
+    }
+
+    @media (max-width: 1080px) {
+      .method-node em { display: none; }
+      .final-moment .story-card { width: min(100%, 300px); }
+    }
+
+    @media (max-width: 680px) {
+      .moment {
+        min-height: 102vh;
+        align-items: flex-end;
+        padding: 80px 18px 14vh;
+      }
+      .story-card {
+        width: 100%;
+        max-width: none;
+        padding: 24px 20px;
+        border: 1px solid rgba(176, 141, 63, .13);
+        border-radius: 4px;
+        background: rgba(var(--ink-2), 0.9);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, .45);
+        backdrop-filter: blur(14px);
+      }
+      .final-moment .story-card { width: 100%; }
+      .story-card h2 { margin: 20px 0; font-size: clamp(38px, 11vw, 48px); }
+      .story-card > p { font-size: 14.5px; line-height: 1.62; }
+      .final-moment { min-height: 150vh; }
+      .core-badge { top: 49%; width: 90px; min-height: 58px; font-size: 7.5px; }
+      .label-people { left: calc(50% - 62px); top: 45%; font-size: 10px; }
+      .label-business { top: calc(49% + 62px); font-size: 10px; }
+      .label-customer { left: calc(50% + 33px); top: 45%; font-size: 10px; }
+      .process-pill { min-width: 90px; padding: 8px 14px; font-size: 10.5px; }
+      .pill-design { top: 24%; }
+      .pill-assess { left: calc(50% - 150px); top: 65%; }
+      .pill-implement { left: calc(50% + 69px); top: 65%; }
+      .method-node b { width: 26px; height: 26px; font-size: 8px; }
+      .node-1 { left: 60%; top: 32%; }
+      .node-2 { left: 70%; top: 42%; }
+      .node-3 { left: 75%; top: 55%; }
+      .node-4 { left: 65%; top: 68%; }
+      .node-5 { left: 50%; top: 71%; }
+      .node-6 { left: 35%; top: 68%; }
+      .node-7 { left: 25%; top: 55%; }
+      .node-8 { left: 30%; top: 42%; }
+      .node-9 { left: 40%; top: 32%; }
+    }
+
+    /* ---------- Methodology: triangle diagram ---------- */
+    .triangle-wrap {
+      position: relative;
+      max-width: 520px;
+      margin: 0 auto;
+      aspect-ratio: 400/380;
+    }
+
+    .triangle-diagram {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+
+    .triangle-diagram path {
+      fill: none;
+      stroke: var(--slate);
+      stroke-width: 1.5;
+    }
+
+    .triangle-diagram .tri-draw {
+      stroke: var(--brass);
+      stroke-dasharray: 1100;
+      stroke-dashoffset: 1100;
+    }
+
+    .tri-vertex,
+    .tri-node,
+    .tri-center {
+      position: absolute;
+      transform: translate(-50%, -50%) scale(.6);
+      opacity: 0;
+    }
+
+    .tri-vertex {
+      background: var(--cobalt);
+      color: #fff;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 13px;
+      padding: 9px 18px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .tri-node {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .04em;
+      color: var(--paper);
+      white-space: nowrap;
+      background: var(--ink);
+    }
+
+    .tri-node::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--brass);
+      box-shadow: 0 0 8px 1px rgba(176, 141, 63, .8);
+      flex: none;
+    }
+
+    .tri-node span {
+      color: var(--graphite);
+    }
+
+    .tri-center {
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      border: 1px solid var(--slate);
+      background: var(--ink-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .06em;
+      color: var(--brass);
+      padding: 12px;
+      line-height: 1.4;
+    }
+
+    .tri-side {
+      position: absolute;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .16em;
+      color: var(--graphite);
+    }
+
+    /* ---------- ASCEND method ---------- */
+    .ascend-wrap {
+      margin-top: 120px;
+    }
+
+    .ascend-head {
+      max-width: 640px;
+      margin-bottom: 56px;
+    }
+
+    .ascend-head .exhibit-label {
+      margin-bottom: 14px;
+    }
+
+    .ascend-title {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(24px, 3.4vw, 34px);
+      line-height: 1.2;
+    }
+
+    .ascend-bars {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 22px;
+      perspective: 900px;
+      margin-bottom: 64px;
+    }
+
+    .ascend-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .ascend-bar {
+      width: 52px;
+      height: 140px;
+      position: relative;
+      background: linear-gradient(180deg, rgba(51, 85, 255, .32), rgba(51, 85, 255, .04) 65%, transparent);
+      border: 1px solid rgba(92, 124, 255, .35);
+      border-radius: 2px;
+      transform: rotateY(16deg) rotateX(3deg) scaleY(0);
+      transform-origin: bottom;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 16px;
+    }
+
+    .ascend-bar::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--cobalt-bright);
+      box-shadow: 0 0 14px 2px rgba(92, 124, 255, .75);
+    }
+
+    .ascend-bar .letter {
+      font-family: var(--serif);
+      font-size: 26px;
+      color: var(--paper);
+    }
+
+    .ascend-item-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--brass);
+      text-align: center;
+    }
+
+    .ascend-grid {
+      display: grid;
+      gap: 1px;
+      background: var(--slate);
+      border: 1px solid var(--slate);
+      grid-template-columns: 1fr;
+    }
+
+    @media(min-width: 760px) {
+      .ascend-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .ascend-card {
+      background: var(--ink-2);
+      padding: 30px 26px;
+    }
+
+    .ascend-card .letter-tag {
+      font-family: var(--serif);
+      font-size: 22px;
+      color: var(--cobalt-bright);
+      margin-right: 8px;
+    }
+
+    .ascend-card h4 {
+      display: inline;
+      font-family: var(--sans);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .ascend-card p {
+      margin-top: 12px;
+      font-size: 14.5px;
+      color: var(--graphite);
+      line-height: 1.6;
+    }
+
+    /* ---------- Parallax numerals ---------- */
+    .parallax-num {
+      position: absolute;
+      top: 6px;
+      right: 32px;
+      font-family: var(--serif);
+      font-size: 200px;
+      line-height: 1;
+      color: rgba(255, 255, 255, .03);
+      pointer-events: none;
+      z-index: 0;
+      user-select: none;
+    }
+
+    @media(min-width: 900px) {
+      .parallax-num {
+        right: 72px;
+      }
+    }
+
+    /* ---------- Industry Grid ---------- */
+    .industry-grid {
+      display: grid;
+      gap: 1px;
+      background: var(--slate);
+      border: 1px solid var(--slate);
+      grid-template-columns: 1fr;
+      margin-top: 40px;
+    }
+
+    @media(min-width: 640px) {
+      .industry-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media(min-width: 1000px) {
+      .industry-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .industry-card {
+      background: var(--ink-2);
+      padding: 32px 26px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: background .25s ease;
+    }
+
+    .industry-card:hover {
+      background: rgba(100, 116, 139, 0.02);
+    }
+
+    .industry-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 2px;
+      height: 28px;
+      background: var(--cobalt-bright);
+      opacity: .7;
+    }
+
+    .industry-card h3 {
+      font-family: var(--serif);
+      font-size: 19px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      line-height: 1.25;
+    }
+
+    .industry-card p {
+      font-size: 14px;
+      color: var(--graphite);
+      line-height: 1.5;
+    }
+
+    /* ---------- Evidence Grid / Editorial Cards ---------- */
+    .evidence-grid {
+      display: grid;
+      gap: 28px;
+      margin-top: 40px;
+    }
+
+    @media(min-width: 760px) {
+      .evidence-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--ink-2);
+      color: var(--paper);
+      border: 1px solid var(--slate);
+      padding: 34px 30px;
+      border-radius: 2px;
+      display: flex;
+      flex-direction: column;
+      min-height: 280px;
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px -20px rgba(0,0,0,.15);
+    }
+
+    .card .tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      color: var(--cobalt);
+      margin-bottom: 18px;
+    }
+
+    .card h3 {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.25;
+      margin-bottom: 14px;
+    }
+
+    .card p {
+      font-size: 14.5px;
+      color: var(--graphite);
+      line-height: 1.6;
+      flex: 1;
+    }
+
+    .card .read {
+      margin-top: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--paper);
+      border-top: 1px solid var(--slate);
+      padding-top: 16px;
+    }
+
+    /* ---------- CTA Contact Band ---------- */
+    .cta-band {
+      background: var(--paper);
+      color: var(--ink);
+      padding: 110px 0;
+    }
+
+    html.dark-mode .cta-band {
+      background: var(--ink-2);
+      color: var(--paper);
+      border-top: 1px solid var(--slate);
+      border-bottom: 1px solid var(--slate);
+    }
+
+    .cta-band .wrap {
+      padding-left: 32px;
+    }
+
+    @media(min-width: 900px) {
+      .cta-band .wrap {
+        padding-left: 72px;
+      }
+    }
+
+    .cta-band h2 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(30px, 5vw, 52px);
+      max-width: 16ch;
+      line-height: 1.08;
+    }
+
+    .cta-band .btn-primary {
+      margin-top: 0;
+      border: none;
+    }
+
+    .cta-band .btn-ghost {
+      border-color: rgba(255, 255, 255, .25);
+      color: var(--ink);
+    }
+
+    html.dark-mode .cta-band .btn-ghost {
+      border-color: rgba(20, 23, 29, .25);
+      color: var(--paper);
+    }
+
+    .cta-band .btn-ghost:hover {
+      border-color: var(--cobalt-bright);
+      color: var(--cobalt-bright);
+    }
+
+    .cta-band .row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 32px;
+    }
+
+    .cta-band .side {
+      font-size: 15px;
+      color: var(--graphite);
+      max-width: 38ch;
+      line-height: 1.6;
+    }
+
+    .cta-band .hero-cta {
+      margin-top: 36px;
+    }
+
+    /* ---------- Footer ---------- */
+    footer {
+      padding: 80px 0 40px;
+      border-top: 1px solid var(--slate);
+      background: var(--ink-2);
+    }
+
+    footer .wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 44px;
+    }
+
+    .footer-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 40px;
+    }
+
+    .footer-cols {
+      display: flex;
+      gap: 64px;
+      flex-wrap: wrap;
+    }
+
+    .footer-col h5 {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--brass);
+      letter-spacing: .08em;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .footer-col button,
+    .footer-col a {
+      display: block;
+      font-size: 14px;
+      color: var(--graphite);
+      margin-bottom: 10px;
+      text-align: left;
+      transition: color 0.2s ease;
+    }
+
+    .footer-col button:hover,
+    .footer-col a:hover {
+      color: var(--paper);
+    }
+
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--graphite);
+      padding-top: 28px;
+      border-top: 1px solid var(--slate);
+    }
+
+    /* ---------- Scroll Reveal Animations ---------- */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .btn:hover, .card:hover, .industry-card:hover { transform: none; }
+      #preloader { display: none !important; }
+      .discipline, .industry-card, .ascend-card, .card { opacity: 1 !important; transform: none !important; }
+      .tri-vertex, .tri-node, .tri-center { opacity: 1 !important; transform: translate(-50%,-50%) scale(1) !important; }
+      .tri-draw { stroke-dashoffset: 0 !important; }
+      .ascend-bar { transform: rotateY(16deg) rotateX(3deg) scaleY(1) !important; }
+      .marquee-track { animation: none; }
+      .valueprism-section { height: auto !important; }
+      .valueprism-sticky { position: relative !important; height: auto !important; overflow: visible !important; }
+      .scroll-flow { margin-top: 0 !important; }
+      .moment { min-height: auto !important; padding: 40px 16px !important; }
+    }
+  </style>
+</head>
+<body class="loading">
+
+  <!-- PRELOADER -->
+  <div id="preloader" role="progressbar" aria-label="Loading workspace">
+    <div class="preloader-flash"></div>
+    <svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g class="pl-lines">
+        <line x1="72" y1="0" x2="72" y2="240" stroke="#B08D3F" stroke-width="1" />
+        <line x1="138" y1="0" x2="138" y2="240" stroke="#B08D3F" stroke-width="1" />
+      </g>
+      <polygon class="pl-mark" points="120,66 174,120 120,174 66,120" fill="none" stroke="#3355FF" stroke-width="1.5" />
+    </svg>
+    <div class="preloader-pct">00%</div>
+    <div class="preloader-insights">
+      <div class="pl-line">MAPPING LANDSCAPE DEPENDENCIES</div>
+      <div class="pl-line">RECONCILING MASTER DATA OBJECTS</div>
+      <div class="pl-line">ALIGNING TO FIT-TO-STANDARD</div>
+      <div class="pl-line">PROVISIONING MIGRATION WORKSPACE</div>
+    </div>
+  </div>
+
+  <!-- SITE HEADER -->
+  <header class="site-header">
+    <button class="wordmark" onclick="jumpTo('hero')" aria-label="Back to top">
+      PRAE<span>·</span>EMINEO
+    </button>
+    <nav class="top-nav" aria-label="Main Navigation">
+      <button onclick="jumpTo('practice')">Practice</button>
+      <button onclick="jumpTo('methodology')">Methodology</button>
+      <button onclick="jumpTo('ascend')">ASCEND</button>
+      <button onclick="jumpTo('industries')">Industries</button>
+      <button onclick="jumpTo('evidence')">Evidence</button>
+    </nav>
+
+    <!-- Dynamic Progress HUD -->
+    <div class="stage-status" aria-live="polite">
+      <span>01</span> / 08 · The Core
+    </div>
+
+    <!-- Theme Toggle & CTA -->
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+      ☽ Dark
+    </button>
+    <button class="full-prism-link" onclick="jumpTo('contact')">
+      <span class="full-desktop-label">Book consultation</span>
+      <span class="full-mobile-label">Book</span>
+      <i>↗</i>
+    </button>
+    <i class="reading-progress" aria-hidden="true"></i>
+  </header>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section id="hero" class="hero exhibit">
+      <canvas id="fluid-canvas"></canvas>
+      <div class="hero-veil"></div>
+      <div class="spine"></div>
+      <div class="wrap">
+        <div class="kicker">EX. 01 — THESIS</div>
+        <h1 class="headline" data-split-reveal>ECC won't get you to 2030. <em>Neither will a lift-and-shift.</em></h1>
+        <p class="hero-sub">Moving to the cloud without changing your processes simply moves your legacy debt to a more expensive server. We run S/4HANA and RISE with SAP transformations that audit, refactor, and streamline the decades of custom workarounds quietly accumulated in your ECC estate.</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" onclick="jumpTo('contact')">Book a consultation</button>
+          <button class="btn btn-ghost" onclick="jumpTo('methodology')">See how we migrate</button>
+        </div>
+        <div class="hero-meta">
+          <div><b>2027</b>mainstream ECC maintenance ends</div>
+          <div><b>200+</b>S/4HANA go-lives led</div>
+          <div><b>1</b>partner accountable end to end</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MARQUEE SECTORS -->
+    <div class="sectors">
+      <div class="wrap">
+        <div class="sectors-label">SAP landscapes across</div>
+        <div class="marquee">
+          <div class="marquee-track">
+            <span>Discrete Manufacturing</span>
+            <span>Automotive</span>
+            <span>Chemical &amp; Process</span>
+            <span>CPG &amp; Food and Beverage</span>
+            <span>Life Sciences &amp; Healthcare</span>
+            <span>Retail</span>
+            <span>Wholesale Distribution</span>
+            <span>Utilities &amp; Energy</span>
+            <span>Discrete Manufacturing</span>
+            <span>Automotive</span>
+            <span>Chemical &amp; Process</span>
+            <span>CPG &amp; Food and Beverage</span>
+            <span>Life Sciences &amp; Healthcare</span>
+            <span>Retail</span>
+            <span>Wholesale Distribution</span>
+            <span>Utilities &amp; Energy</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRACTICE DISCIPLINES -->
+    <section id="practice" class="exhibit">
+      <div class="spine"></div>
+      <div class="wrap">
+        <div class="exhibit-label">EX. 02 — HOW WE'RE BUILT</div>
+        <div class="section-head reveal">
+          <h2 class="section-title" data-split-reveal>Two disciplines. One accountable team.</h2>
+          <p class="section-desc">System integrators hand you a project plan. Hyperscalers hand you infrastructure. We stay until finance closes the books on the new system without a workaround in sight.</p>
+        </div>
+
+        <div class="disciplines reveal depth-stage">
+          <div class="discipline" data-scroll-x="-50" data-scroll-y="30" data-scroll-z="-40" data-scroll-rotate="-5" data-scroll-rotate-axis="y">
+            <span class="num">01 / PROCESS</span>
+            <h3>The case for what changes</h3>
+            <p>Before a single table converts, we map which processes are riding on twenty years of ECC customization — and which of that customization is actually load-bearing.</p>
+            <ul>
+              <li>Fit-to-standard assessment against SAP Best Practices</li>
+              <li>Custom code and Z-table rationalization</li>
+              <li>Business case tied to RISE with SAP licensing</li>
+            </ul>
+          </div>
+          <div class="discipline" data-scroll-x="50" data-scroll-y="30" data-scroll-z="-40" data-scroll-rotate="5" data-scroll-rotate-axis="y">
+            <span class="num">02 / PLATFORM</span>
+            <h3>The system that stays up</h3>
+            <p>We run the technical migration itself — conversion, cloud landscape, and the integrations that quietly kept ECC alive for two decades.</p>
+            <ul>
+              <li>Brownfield, greenfield, or selective data transition</li>
+              <li>BTP integration and Business AI (Joule) enablement</li>
+              <li>Cutover, hypercare, and managed operations</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- METHODOLOGY: 3D VALUEPRISM PINNED STORY -->
+    <section id="methodology" class="valueprism-section">
+      <div class="valueprism-sticky">
+        <div class="scene-stage">
+          <div class="three-host"></div>
+          <div class="stage-atmosphere" aria-hidden="true"></div>
+          <div class="scene-interface" aria-hidden="true">
+            <div class="core-badge">CULTURE OF<br />ETHICS &amp; COMPLIANCE</div>
+            <span class="prism-label label-people">People</span>
+            <span class="prism-label label-business">Business</span>
+            <span class="prism-label label-customer">Customer</span>
+            <span class="process-pill pill-design">Design</span>
+            <span class="process-pill pill-assess">Assess</span>
+            <span class="process-pill pill-implement">Implement</span>
+            
+            <span class="method-node node-1"><b>01</b><em>Governance &amp; Leadership</em></span>
+            <span class="method-node node-2"><b>02</b><em>Be Fair &amp; Ethical</em></span>
+            <span class="method-node node-3"><b>03</b><em>Be a Value Add</em></span>
+            <span class="method-node node-4"><b>04</b><em>Training &amp; Communications</em></span>
+            <span class="method-node node-5"><b>05</b><em>Learning &amp; Encouraging</em></span>
+            <span class="method-node node-6"><b>06</b><em>Customer Focused</em></span>
+            <span class="method-node node-7"><b>07</b><em>Result Focused</em></span>
+            <span class="method-node node-8"><b>08</b><em>Outstanding Service</em></span>
+            <span class="method-node node-9"><b>09</b><em>Continuous Improvement</em></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrolling Moments -->
+      <div class="scroll-flow">
+        <section id="core" class="moment hero-moment" data-stage="1">
+          <div class="hero-copy">
+            <p class="hero-eyebrow">VALUEPRISM™ METHODOLOGY</p>
+            <h1>
+              <span class="flow-line"><span>Realize value</span></span>
+              <span class="flow-line muted"><span>from the inside out.</span></span>
+            </h1>
+            <p class="hero-subtitle">A culture of ethics and compliance,<br />refracted through everything you do.</p>
+          </div>
+          <button class="hero-action" onclick="jumpTo('standard')"><span>✦</span> Enter the Core</button>
+          <div class="hero-footnote"><span>ETHICS</span><span>PEOPLE</span><span>PERFORMANCE</span><span>CUSTOMER</span></div>
+        </section>
+
+        <section id="standard" class="moment align-left" data-stage="2">
+          <div class="story-card">
+            <div class="story-index"><span>02</span><i></i><span>The Standard</span></div>
+            <h2>
+              <span class="flow-line"><span>Everything begins</span></span>
+              <span class="flow-line"><span>with what cannot bend.</span></span>
+            </h2>
+            <p>The core problem in SAP migrations is process drift and shortcut compliance. True value starts by locking in a clean core: clear rules, bulletproof access control, and compliance embedded in the database schema itself.</p>
+          </div>
+        </section>
+
+        <section id="people" class="moment align-right people-moment" data-stage="3">
+          <div class="story-card">
+            <div class="story-index"><span>03</span><i></i><span>People</span></div>
+            <h2>
+              <span class="flow-line"><span>Value starts with</span></span>
+              <span class="flow-line"><span>how people are treated.</span></span>
+            </h2>
+            <p>Even the most advanced cloud architecture fails if users find it too complex. We eliminate shadow workarounds and spreadsheets by training, aligning, and empowering teams to adopt the system natively.</p>
+            <span class="micro-proof">THE HUMAN FACE OF VALUE</span>
+          </div>
+        </section>
+
+        <section id="business" class="moment align-left business-moment" data-stage="4">
+          <div class="story-card">
+            <div class="story-index"><span>04</span><i></i><span>Business</span></div>
+            <h2>
+              <span class="flow-line"><span>Delivery earns trust</span></span>
+              <span class="flow-line"><span>when discipline is visible.</span></span>
+            </h2>
+            <p>Operational leakage occurs when performance metrics are decoupled from system integrity. We implement real-time process mining, clear KPI dashboards, and structured governance to ensure your RISE investment returns positive cash flow.</p>
+            <span class="micro-proof">THE OPERATING FACE OF VALUE</span>
+          </div>
+        </section>
+
+        <section id="customer" class="moment align-right customer-moment" data-stage="5">
+          <div class="story-card">
+            <div class="story-index"><span>05</span><i></i><span>Customer</span></div>
+            <h2>
+              <span class="flow-line"><span>Partnership becomes</span></span>
+              <span class="flow-line"><span>a value multiplier.</span></span>
+            </h2>
+            <p>Migrations shouldn't interrupt your supply chain or order execution. We secure external touchpoints, optimize logistics integrations, and enable smooth B2B self-service portals to compound relational value.</p>
+            <span class="micro-proof">THE RELATIONAL FACE OF VALUE</span>
+          </div>
+        </section>
+
+        <section id="process" class="moment align-left process-moment" data-stage="6">
+          <div class="story-card">
+            <div class="story-index"><span>06</span><i></i><span>The Process</span></div>
+            <h2>
+              <span class="flow-line"><span>Assess. Design.</span></span>
+              <span class="flow-line"><span>Implement. Repeat.</span></span>
+            </h2>
+            <p>The methodology stays alive because it never closes. Every implementation creates the evidence for the next assessment.</p>
+            <div class="text-loop"><span>ASSESS</span><i>→</i><span>DESIGN</span><i>→</i><span>IMPLEMENT</span></div>
+          </div>
+        </section>
+
+        <section id="behaviors" class="moment align-right behavior-moment" data-stage="7">
+          <div class="story-card">
+            <div class="story-index"><span>07</span><i></i><span>Nine behaviors</span></div>
+            <h2>
+              <span class="flow-line"><span>Broad principles.</span></span>
+              <span class="flow-line"><span>Observable practice.</span></span>
+            </h2>
+            <p>Nine waypoints connect intention to action—from governance and leadership to outstanding service and continuous improvement.</p>
+            <div class="behavior-proof"><span>01—03</span> Lead with integrity <span>04—06</span> Build capability <span>07—09</span> Improve outcomes</div>
+          </div>
+        </section>
+
+        <section id="full-prism" class="moment align-left final-moment" data-stage="8">
+          <div class="story-card">
+            <div class="story-index"><span>08</span><i></i><span>The Full ValuePrism</span></div>
+            <h2>
+              <span class="flow-line"><span>One core.</span></span>
+              <span class="flow-line"><span>One living system.</span></span>
+            </h2>
+            <p>The core sets the standard. The pillars focus the work. The orbit keeps value moving. Together, culture becomes performance performance people can feel.</p>
+            <blockquote>Value, realized from the inside out.</blockquote>
+            <button class="replay-link" onclick="jumpTo('core')">Replay the build <span>↗</span></button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- THE ASCEND METHOD: SVG TRIANGLE DIAGRAM -->
+    <section id="ascend" class="exhibit">
+      <div class="spine"></div>
+      <div class="wrap">
+        <div class="exhibit-label">EX. 03 — METHODOLOGY</div>
+        <div class="section-head reveal">
+          <h2 class="section-title" data-split-reveal>One accountable loop, not a stack of workstreams.</h2>
+          <p class="section-desc">Every engagement runs through the same cycle — Process, Platform, and People pulling toward a single point of accountability.</p>
+        </div>
+
+        <!-- Interactive SVG Diagram -->
+        <div class="triangle-wrap reveal">
+          <svg class="triangle-diagram" viewBox="0 0 400 380" xmlns="http://www.w3.org/2000/svg">
+            <path d="M200,20 L380,340 L20,340 Z"/>
+            <path class="tri-draw" d="M200,20 L380,340 L20,340 Z"/>
+          </svg>
+          <div class="tri-vertex" style="left: 50%; top: 5.3%;">DESIGN</div>
+          <div class="tri-vertex" style="left: 5%; top: 89.5%;">ASSESS</div>
+          <div class="tri-vertex" style="left: 95%; top: 89.5%;">DELIVER</div>
+
+          <div class="tri-node" style="left: 35%; top: 33.4%;"><span>01</span>Landscape Audit</div>
+          <div class="tri-node" style="left: 65%; top: 33.4%;"><span>02</span>Executive Alignment</div>
+          <div class="tri-node" style="left: 80%; top: 61.5%;"><span>03</span>Fit-to-Standard Design</div>
+          <div class="tri-node" style="left: 65%; top: 89.5%;"><span>04</span>Integration Governance</div>
+          <div class="tri-node" style="left: 35%; top: 89.5%;"><span>05</span>Change Adoption</div>
+          <div class="tri-node" style="left: 20%; top: 61.5%;"><span>06</span>Hypercare &amp; Tuning</div>
+
+          <div class="tri-center">SINGLE POINT<br/>OF<br/>ACCOUNTABILITY</div>
+
+          <div class="tri-side" style="left: 22%; top: 47%; transform: rotate(-58deg);">PEOPLE</div>
+          <div class="tri-side" style="left: 78%; top: 47%; transform: rotate(58deg);">PLATFORM</div>
+          <div class="tri-side" style="left: 50%; top: 97%; transform: translateX(-50%);">PROCESS</div>
+        </div>
+
+        <!-- ASCEND Steps and bars -->
+        <div class="ascend-wrap">
+          <div class="ascend-head reveal">
+            <div class="exhibit-label">THE ASCEND METHOD</div>
+            <h3 class="ascend-title" data-split-reveal>Six steps from legacy ECC to a system people trust.</h3>
+          </div>
+
+          <div class="ascend-bars">
+            <div class="ascend-item">
+              <div class="ascend-bar"><span class="letter">A</span></div>
+              <div class="ascend-item-label">ASSESS</div>
+            </div>
+            <div class="ascend-item">
+              <div class="ascend-bar"><span class="letter">S</span></div>
+              <div class="ascend-item-label">STREAMLINE</div>
+            </div>
+            <div class="ascend-item">
+              <div class="ascend-bar"><span class="letter">C</span></div>
+              <div class="ascend-item-label">CONVERT</div>
+            </div>
+            <div class="ascend-item">
+              <div class="ascend-bar"><span class="letter">E</span></div>
+              <div class="ascend-item-label">EMBED</div>
+            </div>
+            <div class="ascend-item">
+              <div class="ascend-bar"><span class="letter">N</span></div>
+              <div class="ascend-item-label">NAVIGATE</div>
+            </div>
+            <div class="ascend-item">
+              <div class="ascend-bar"><span class="letter">D</span></div>
+              <div class="ascend-item-label">DELIVER</div>
+            </div>
+          </div>
+
+          <div class="ascend-grid depth-stage">
+            <div class="ascend-card" data-scroll-x="-20" data-scroll-z="-15" data-scroll-rotate="-3" data-scroll-rotate-axis="x"><span class="letter-tag">A</span><h4>Assess</h4><p>Landscape and custom-code audit against your current ECC or S/4HANA environment, ranked by conversion complexity.</p></div>
+            <div class="ascend-card" data-scroll-x="20" data-scroll-z="-15" data-scroll-rotate="3" data-scroll-rotate-axis="x"><span class="letter-tag">S</span><h4>Streamline</h4><p>Fit-to-standard redesign of the processes still riding on twenty years of workarounds.</p></div>
+            <div class="ascend-card" data-scroll-x="-20" data-scroll-z="-15" data-scroll-rotate="-3" data-scroll-rotate-axis="x"><span class="letter-tag">C</span><h4>Convert</h4><p>Core system build and data migration, tested against your real transaction volumes.</p></div>
+            <div class="ascend-card" data-scroll-x="20" data-scroll-z="-15" data-scroll-rotate="3" data-scroll-rotate-axis="x"><span class="letter-tag">E</span><h4>Embed</h4><p>BTP integration and Business AI (Joule) wired into the processes that need it, not bolted on after.</p></div>
+            <div class="ascend-card" data-scroll-x="-20" data-scroll-z="-15" data-scroll-rotate="-3" data-scroll-rotate-axis="x"><span class="letter-tag">N</span><h4>Navigate</h4><p>Change management and training so the new system gets adopted, not quietly routed around.</p></div>
+            <div class="ascend-card" data-scroll-x="20" data-scroll-z="-15" data-scroll-rotate="3" data-scroll-rotate-axis="x"><span class="letter-tag">D</span><h4>Deliver</h4><p>Cutover, hypercare, and a managed operations model your team can run without us.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INDUSTRIES GRID -->
+    <section id="industries" class="exhibit">
+      <div class="spine"></div>
+      <div class="wrap">
+        <div class="exhibit-label">EX. 04 — INDUSTRIES</div>
+        <div class="section-head reveal">
+          <h2 class="section-title" data-split-reveal>Depth in the industries that run on SAP.</h2>
+          <p class="section-desc">Pre-built accelerators and fit-to-standard playbooks for the eight sectors where we operate.</p>
+        </div>
+
+        <div class="industry-grid reveal depth-stage">
+          <div class="industry-card" data-scroll-x="-30" data-scroll-y="20" data-scroll-z="-25" data-scroll-rotate="-4">
+            <h3>Discrete Manufacturing</h3>
+            <p>One system of record from engineering change to the shop floor — no shadow spreadsheets closing the gap.</p>
+          </div>
+          <div class="industry-card" data-scroll-x="24" data-scroll-y="-14" data-scroll-z="-40" data-scroll-rotate="3">
+            <h3>Automotive</h3>
+            <p>EDI and JIT/JIS sequencing that stays in lock-step with the OEM, even when the release schedule moves overnight.</p>
+          </div>
+          <div class="industry-card" data-scroll-x="-22" data-scroll-y="28" data-scroll-z="-18" data-scroll-rotate="-3">
+            <h3>Chemical &amp; Process</h3>
+            <p>Batch and recipe management that holds up to regulatory audit, formula by formula.</p>
+          </div>
+          <div class="industry-card" data-scroll-x="32" data-scroll-y="-18" data-scroll-z="-32" data-scroll-rotate="4">
+            <h3>CPG &amp; Food and Beverage</h3>
+            <p>Trade spend and lot traceability visible enough to defend a recall in under an hour.</p>
+          </div>
+          <div class="industry-card" data-scroll-x="-28" data-scroll-y="16" data-scroll-z="-22" data-scroll-rotate="-3">
+            <h3>Life Sciences &amp; Healthcare</h3>
+            <p>GxP-validated builds, run by a team that has actually sat through the qualification.</p>
+          </div>
+          <div class="industry-card" data-scroll-x="24" data-scroll-y="-22" data-scroll-z="-38" data-scroll-rotate="3">
+            <h3>Retail</h3>
+            <p>Seasonal assortment and pricing decisions made on this week's data, not last quarter's.</p>
+          </div>
+          <div class="industry-card" data-scroll-x="-34" data-scroll-y="20" data-scroll-z="-24" data-scroll-rotate="-4">
+            <h3>Wholesale Distribution</h3>
+            <p>Freight, fulfillment speed, and customer-specific pricing reconciled on one P&amp;L.</p>
+          </div>
+          <div class="industry-card" data-scroll-x="28" data-scroll-y="-16" data-scroll-z="-30" data-scroll-rotate="3">
+            <h3>Utilities &amp; Energy</h3>
+            <p>Asset-heavy maintenance and plant reliability, engineered into EAM from day one.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVIDENCE CARDS -->
+    <section id="evidence" class="exhibit">
+      <div class="spine"></div>
+      <div class="wrap">
+        <div class="parallax-num" aria-hidden="true" data-scroll-y="-40" data-scroll-z="-20">06</div>
+        <div class="exhibit-label">EX. 05 — EVIDENCE</div>
+        <div class="section-head reveal">
+          <h2 class="section-title" data-split-reveal>Notes from the landscape.</h2>
+          <p class="section-desc">Short, specific writing on what actually breaks in an S/4HANA migration — and what to fix before it does.</p>
+        </div>
+
+        <div class="evidence-grid reveal depth-stage">
+          <div class="card" data-scroll-x="-36" data-scroll-z="-30" data-scroll-rotate="-4" data-scroll-rotate-axis="y">
+            <span class="tag">DEADLINE</span>
+            <h3>2027 isn't a software problem, it's a budget problem</h3>
+            <p>Mainstream ECC maintenance ends in 2027. Every quarter a business waits is a quarter closer to a forced migration on someone else's timeline, at someone else's price.</p>
+            <div class="read">6 min read</div>
+          </div>
+          <div class="card" data-scroll-y="26" data-scroll-z="-46">
+            <span class="tag">CUSTOM CODE</span>
+            <h3>The Z-table nobody remembers writing still runs payroll</h3>
+            <p>Most ECC estates carry a decade of custom code no one can explain anymore. A clean conversion has to decide, table by table, what's load-bearing and what's just debt.</p>
+            <div class="read">5 min read</div>
+          </div>
+          <div class="card" data-scroll-x="36" data-scroll-z="-30" data-scroll-rotate="4" data-scroll-rotate-axis="y">
+            <span class="tag">RISE WITH SAP</span>
+            <h3>RISE changes the contract, not just the hosting</h3>
+            <p>Moving to RISE with SAP resets the commercial relationship as much as the technical one. The migrations that go well treat it as both from day one.</p>
+            <div class="read">7 min read</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT CTA -->
+    <section class="cta-band" id="contact">
+      <div class="wrap reveal">
+        <div class="row">
+          <h2 data-split-reveal>Start with Phase 01 of ASCEND — the landscape audit.</h2>
+          <div class="side">Book a 30-minute working session with a partner. We'll map your industry's fit-to-standard accelerators and tell you, within a week, what your ASCEND path actually costs.</div>
+        </div>
+        <div class="hero-cta">
+          <button class="btn btn-primary" onclick="jumpTo('contact')">Book a consultation</button>
+          <button class="btn btn-ghost" onclick="jumpTo('industries')">See your industry</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="wrap">
+      <div class="footer-top">
+        <div class="logo">PRAE<span>·</span>EMINEO</div>
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h5>FIRM</h5>
+            <button onclick="jumpTo('practice')">Practice</button>
+            <button onclick="jumpTo('industries')">Industries</button>
+            <button onclick="jumpTo('methodology')">Methodology</button>
+            <button onclick="jumpTo('evidence')">Evidence</button>
+          </div>
+          <div class="footer-col">
+            <h5>SECTORS</h5>
+            <button onclick="jumpTo('industries')">Manufacturing</button>
+            <button onclick="jumpTo('industries')">Retail &amp; CPG</button>
+            <button onclick="jumpTo('industries')">Utilities &amp; Energy</button>
+          </div>
+          <div class="footer-col">
+            <h5>CONTACT</h5>
+            <button onclick="jumpTo('contact')">Book consultation</button>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Praeemineo. All rights reserved.</span>
+        <span>Privacy &middot; Terms</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- STANDALONE JAVASCRIPT -->
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+
+    let isLightMode = true; // Default theme
+    let prismDisposer = null;
+    let fluidDisposer = null;
+    
+    // Stages indicator titles
+    const stages = [
+      "The Core",
+      "The Standard",
+      "People Pillar",
+      "Business Pillar",
+      "Customer Pillar",
+      "The Process",
+      "Nine Behaviors",
+      "Full ValuePrism"
+    ];
+
+    window.addEventListener("DOMContentLoaded", () => {
+      // 1. Preloader logic
+      const pctEl = document.querySelector(".preloader-pct");
+      const pctState = { v: 0 };
+      
+      gsap.to(pctState, {
+        v: 100,
+        duration: 2.15,
+        ease: "power1.inOut",
+        onUpdate: () => {
+          if (pctEl) pctEl.textContent = String(Math.round(pctState.v)).padStart(2, "0") + "%";
+        }
+      });
+
+      const lineTl = gsap.timeline();
+      document.querySelectorAll(".pl-line").forEach((el, i) => {
+        lineTl.to(el, { opacity: 1, duration: 0.2 }, i * 0.45)
+              .to(el, { opacity: 0, duration: 0.2 }, i * 0.45 + 0.32);
+      });
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          document.body.classList.remove("loading");
+          document.getElementById("preloader").style.display = "none";
+          initAll();
+        },
+        defaults: { ease: "power2.inOut" }
+      });
+
+      tl.to(".pl-lines line", { opacity: 0.85, duration: 0.45, stagger: 0.06 })
+        .to(".pl-mark", { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.6)" }, "+=0.9")
+        .to(".preloader-flash", { opacity: 1, duration: 0.12 })
+        .to(".preloader-flash", { opacity: 0, duration: 0.3 });
+    });
+
+    function initAll() {
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // 2. Lenis Smooth Scroll Setup
+      const lenis = new Lenis({
+        duration: 1.05,
+        easing: (t) => 1 - Math.pow(1 - t, 3),
+        smoothWheel: true,
+        syncTouch: false,
+        touchMultiplier: 1.1,
+      });
+
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+      gsap.ticker.lagSmoothing(0);
+
+      // 3. Initialize WebGL Canvases
+      fluidDisposer = initFluidCanvas(isLightMode);
+      prismDisposer = initValuePrismStage(isLightMode);
+
+      // 4. Scroll progress indicator bar in header
+      gsap.to(".reading-progress", {
+        scaleX: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "main",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: true
+        }
+      });
+
+      // 5. Track inside ValuePrism section
+      ScrollTrigger.create({
+        trigger: ".valueprism-section",
+        start: "top 120px",
+        end: "bottom 80%",
+        onToggle: (self) => {
+          const status = document.querySelector(".stage-status");
+          if (status) status.classList.toggle("visible", self.isActive);
+        }
+      });
+
+      // 6. Track active moment inside methodology
+      document.querySelectorAll(".valueprism-section .moment").forEach((moment, index) => {
+        ScrollTrigger.create({
+          trigger: moment,
+          start: "top 50%",
+          end: "bottom 50%",
+          onToggle: (self) => {
+            if (self.isActive) {
+              const hud = document.querySelector(".stage-status");
+              if (hud) {
+                hud.innerHTML = `<span>${String(index + 1).padStart(2, "0")}</span> / 08 · ${stages[index]}`;
+              }
+            }
+          }
+        });
+      });
+
+      // 7. Reveal Scroll Entrance Animations
+      document.querySelectorAll(".reveal").forEach((el) => {
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 88%",
+          onEnter: () => el.classList.add("in")
+        });
+      });
+
+      if (!reducedMotion) {
+        // Hero grouped entrance
+        const heroTl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        heroTl
+          .fromTo(".hero .kicker", { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: .6 })
+          .fromTo(".hero .headline", { autoAlpha: 0, y: 24, filter: "blur(6px)" }, { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: .9 }, "-=.3")
+          .fromTo(".hero-sub", { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: .7 }, "-=.5")
+          .fromTo(".hero-cta", { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: .6 }, "-=.35")
+          .fromTo(".hero-meta > div", { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: .5, stagger: .06 }, "-=.25");
+
+        // ValuePrism moments text card reveals
+        document.querySelectorAll(".valueprism-section .story-card").forEach((card) => {
+          const targets = card.querySelectorAll(".story-index, .flow-line > span, .story-card > p, .micro-proof, .text-loop, .behavior-proof, blockquote, .replay-link");
+          gsap.fromTo(targets, {
+            opacity: 0,
+            filter: "blur(9px)",
+            clipPath: "inset(0 0 42% 0)"
+          }, {
+            opacity: 1,
+            filter: "blur(0px)",
+            clipPath: "inset(0 0 0% 0)",
+            ease: "power2.out",
+            stagger: 0.08,
+            scrollTrigger: { trigger: card, start: "top 86%", end: "top 51%", scrub: 0.65 }
+          });
+
+          if (!card.closest(".final-moment")) {
+            gsap.to(targets, {
+              opacity: 0.08,
+              filter: "blur(6px)",
+              clipPath: "inset(30% 0 30% 0)",
+              ease: "power1.in",
+              scrollTrigger: { trigger: card, start: "center 46%", end: "bottom 12%", scrub: 0.65 }
+            });
+          }
+        });
+
+        // SVG Triangle Diagram draw
+        const triWrap = document.querySelector(".triangle-wrap");
+        if (triWrap) {
+          const path = triWrap.querySelector(".tri-draw");
+          const buildTl = gsap.timeline()
+            .to(path, { strokeDashoffset: 0, duration: 1, ease: "none" })
+            .to(".tri-vertex", { opacity: 1, scale: 1, duration: 0.35, stagger: 0.15 }, 0.1)
+            .to(".tri-node", { opacity: 1, scale: 1, duration: 0.3, stagger: 0.08 }, 0.4)
+            .to(".tri-center", { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(1.5)" }, 0.85);
+
+          ScrollTrigger.create({
+            trigger: triWrap,
+            start: "top 75%",
+            end: "top 10%",
+            scrub: 0.6,
+            animation: buildTl
+          });
+        }
+
+        // ASCEND vertical bars rise
+        gsap.to(".ascend-bar", {
+          scaleY: 1,
+          duration: 0.8,
+          ease: "power3.out",
+          stagger: 0.1,
+          scrollTrigger: { trigger: ".ascend-bars", start: "top 85%" }
+        });
+
+        // ASCEND letters drop-in
+        gsap.fromTo(".ascend-bar .letter", {
+          opacity: 0,
+          y: -30,
+        }, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "back.out(1.5)",
+          stagger: 0.1,
+          scrollTrigger: { trigger: ".ascend-bars", start: "top 85%" }
+        });
+
+        // ASCEND cards stagger reveal
+        gsap.fromTo(".ascend-card", {
+          opacity: 0,
+          y: 40,
+          rotationX: -10,
+        }, {
+          opacity: 1,
+          y: 0,
+          rotationX: 0,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: "power2.out",
+          scrollTrigger: { trigger: ".ascend-grid", start: "top 92%" }
+        });
+
+        // 8. 3D Tilt Hover effect on grid cards (Mouse parallax matrix)
+        setupInteractiveTilt(".discipline", 8);
+        setupInteractiveTilt(".industry-card", 6);
+        setupInteractiveTilt(".evidence-grid .card", 8);
+      }
+    }
+
+    function setupInteractiveTilt(selector, maxAngle) {
+      document.querySelectorAll(selector).forEach((card) => {
+        card.addEventListener("mousemove", (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width - 0.5; // -0.5 to 0.5
+          const y = (e.clientY - rect.top) / rect.height - 0.5; // -0.5 to 0.5
+          gsap.to(card, {
+            rotationY: x * maxAngle,
+            rotationX: -y * maxAngle,
+            transformPerspective: 1000,
+            duration: 0.4,
+            ease: "power1.out"
+          });
+        });
+        card.addEventListener("mouseleave", () => {
+          gsap.to(card, { rotationY: 0, rotationX: 0, duration: 0.6, ease: "power2.out" });
+        });
+      });
+    }
+
+    // --- WebGL Fluid Background shader logic ---
+    function initFluidCanvas(lightMode) {
+      const canvas = document.getElementById("fluid-canvas");
+      if (!canvas) return null;
+
+      let renderer, scene, camera, uniforms, rafId;
+      try {
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "low-power" });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      } catch (err) {
+        return null;
+      }
+
+      scene = new THREE.Scene();
+      camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      uniforms = {
+        uTime: { value: 0 },
+        uMouse: { value: new THREE.Vector2(0.5, 0.42) },
+        uResolution: { value: new THREE.Vector2(1, 1) },
+        uLightMode: { value: lightMode ? 1.0 : 0.0 }
+      };
+
+      const vertexShader = `
+        varying vec2 vUv;
+        void main(){
+          vUv = uv;
+          gl_Position = vec4(position.xy, 0.0, 1.0);
+        }
+      `;
+
+      const fragmentShader = `
+        precision highp float;
+        varying vec2 vUv;
+        uniform float uTime;
+        uniform vec2 uMouse;
+        uniform vec2 uResolution;
+        uniform float uLightMode;
+
+        float hash(vec2 p){
+          return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453123);
+        }
+        float noise(vec2 p){
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          float a = hash(i);
+          float b = hash(i + vec2(1.0,0.0));
+          float c = hash(i + vec2(0.0,1.0));
+          float d = hash(i + vec2(1.0,1.0));
+          vec2 u = f*f*(3.0-2.0*f);
+          return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
+        }
+
+        void main(){
+          float aspect = uResolution.x / max(uResolution.y, 1.0);
+          vec2 p = vec2(vUv.x * aspect, vUv.y);
+          vec2 mouseP = vec2(uMouse.x * aspect, uMouse.y);
+
+          float distM = length(p - mouseP);
+          vec2 dir = (p - mouseP) / (distM + 0.0001);
+          float push = smoothstep(0.6, 0.0, distM) * 0.14;
+          p += dir * push;
+
+          float t = uTime * 0.15;
+          float lines = 0.0;
+          for(int i=1; i<6; i++){
+            float fi = float(i);
+            float freq = fi * 2.1;
+            float speed = 0.9 + fi*0.18;
+            float amp = 0.22 / fi;
+            float phase = noise(vec2(p.x*0.6, t*0.4 + fi)) * 1.8;
+            float wave = sin(p.x*freq + t*speed + phase) * amp;
+            float d = abs(p.y - 0.44 - wave);
+            lines += smoothstep(0.03, 0.0, d) * (0.55/fi);
+          }
+
+          float grain = (hash(vUv*uResolution.xy*0.6 + uTime) - 0.5) * 0.035;
+
+          vec3 dark   = vec3(0.011, 0.014, 0.019);
+          vec3 mid    = vec3(0.03, 0.07, 0.20);
+          vec3 bright = vec3(0.20, 0.33, 0.99);
+
+          if (uLightMode > 0.5) {
+            dark   = vec3(0.97, 0.98, 1.0);
+            mid    = vec3(0.78, 0.86, 0.98);
+            bright = vec3(0.00, 0.27, 0.92);
+          }
+
+          float b = clamp(lines, 0.0, 1.0);
+          vec3 color = mix(dark, mid, smoothstep(0.0, 0.5, b));
+          color = mix(color, bright, smoothstep(0.4, 1.0, b));
+          color += grain;
+
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `;
+
+      const geometry = new THREE.PlaneGeometry(2, 2);
+      const material = new THREE.ShaderMaterial({ uniforms, vertexShader, fragmentShader });
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+
+      const resize = () => {
+        const parent = canvas.parentElement;
+        if (!parent) return;
+        const w = parent.clientWidth || 1;
+        const h = parent.clientHeight || 1;
+        renderer.setSize(w, h, false);
+        uniforms.uResolution.value.set(w, h);
+      };
+      window.addEventListener("resize", resize);
+      resize();
+
+      const target = { x: 0.5, y: 0.42 };
+      const current = { x: 0.5, y: 0.42 };
+
+      const onMouseMove = (e) => {
+        const parent = canvas.parentElement;
+        if (!parent) return;
+        const r = parent.getBoundingClientRect();
+        target.x = (e.clientX - r.left) / r.width;
+        target.y = 1.0 - (e.clientY - r.top) / r.height;
+      };
+      const onMouseLeave = () => {
+        target.x = 0.5;
+        target.y = 0.42;
+      };
+
+      const parent = canvas.parentElement;
+      if (parent) {
+        parent.addEventListener("mousemove", onMouseMove);
+        parent.addEventListener("mouseleave", onMouseLeave);
+      }
+
+      const clock = new THREE.Clock();
+      const animate = () => {
+        rafId = requestAnimationFrame(animate);
+        current.x += (target.x - current.x) * 0.06;
+        current.y += (target.y - current.y) * 0.06;
+        uniforms.uMouse.value.set(current.x, current.y);
+        uniforms.uTime.value = clock.getElapsedTime();
+        renderer.render(scene, camera);
+      };
+      animate();
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        window.removeEventListener("resize", resize);
+        if (parent) {
+          parent.removeEventListener("mousemove", onMouseMove);
+          parent.removeEventListener("mouseleave", onMouseLeave);
+        }
+        geometry.dispose();
+        material.dispose();
+        renderer.dispose();
+      };
+    }
+
+    // --- 3D ValuePrism Stage ---
+    function initValuePrismStage(lightMode) {
+      const host = document.querySelector(".three-host");
+      if (!host) return null;
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(lightMode ? 0xf8fafc : 0x0b0e13, .055);
+
+      const camera = new THREE.PerspectiveCamera(38, host.clientWidth / host.clientHeight, .1, 100);
+      camera.position.set(0, .05, 12.4);
+
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+      renderer.setClearColor(0x000000, 0);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.7));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.24;
+      renderer.setSize(host.clientWidth, host.clientHeight, false);
+      host.appendChild(renderer.domElement);
+
+      const parallaxGroup = new THREE.Group();
+      const modelGroup = new THREE.Group();
+      const objectGroup = new THREE.Group();
+      modelGroup.position.y = window.innerHeight < 650 && window.innerWidth > 680 ? .6 : -.5;
+      scene.add(parallaxGroup);
+      parallaxGroup.add(modelGroup);
+      modelGroup.add(objectGroup);
+
+      // Lighting configuration
+      scene.add(new THREE.HemisphereLight(
+        lightMode ? 0xffffff : 0x8dbdff,
+        lightMode ? 0xdde5ff : 0x03030d,
+        lightMode ? 2.2 : 1.6
+      ));
+
+      const blueLight = new THREE.PointLight(0x3355FF, lightMode ? 64 : 48, 18, 2);
+      blueLight.position.set(-1.4, 2.6, 3.7);
+      const brassLight = new THREE.PointLight(0xB08D3F, lightMode ? 50 : 34, 18, 2);
+      brassLight.position.set(1.45, 1.85, 2.8);
+      const rimLight = new THREE.PointLight(0xffffff, lightMode ? 28 : 18, 15, 2);
+      rimLight.position.set(0, -2.2, 3.4);
+      scene.add(blueLight, brassLight, rimLight);
+
+      // Core Gem Structure
+      const glowTexture = makeGlowTexture();
+      const glowSprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: glowTexture,
+        color: 0xffffff,
+        transparent: true,
+        opacity: .88,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }));
+      glowSprite.scale.set(4.7, 4.7, 1);
+      glowSprite.position.z = -.75;
+
+      const coreMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0x0a1442,
+        emissive: 0x1f3cff,
+        emissiveIntensity: 0.9,
+        roughness: 0.12,
+        metalness: 0.4,
+        clearcoat: 1,
+        clearcoatRoughness: 0.04,
+      });
+      const core = new THREE.Mesh(new THREE.SphereGeometry(1, 72, 72), coreMaterial);
+
+      const shellMaterial = new THREE.MeshPhysicalMaterial({
+        color: 0xadc8ff,
+        transparent: true,
+        opacity: .16,
+        roughness: .04,
+        metalness: .05,
+        transmission: .55,
+        thickness: .3,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      });
+      const shell = new THREE.Mesh(new THREE.SphereGeometry(1.22, 64, 64), shellMaterial);
+
+      const coreGroup = new THREE.Group();
+      coreGroup.add(glowSprite, core, shell);
+      coreGroup.position.y = .14;
+      objectGroup.add(coreGroup);
+
+      // Orbiting Torus Rings
+      const ringGroup = new THREE.Group();
+      const rings = [
+        { radius: 1.75, tube: .018, opacity: .34, scale: 1 },
+        { radius: 2.12, tube: .014, opacity: .2, scale: 1.22 },
+        { radius: 2.5, tube: .011, opacity: .1, scale: 1.42 },
+      ].map((spec, index) => {
+        const material = new THREE.MeshBasicMaterial({
+          color: index === 0 ? 0x91a5ff : 0x6f7dea,
+          transparent: true,
+          opacity: spec.opacity,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+        });
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(spec.radius, spec.tube, 12, 160), material);
+        ring.rotation.x = 1.22;
+        ring.scale.setScalar(spec.scale);
+        ring.position.y = -.36 - index * .07;
+        ring.userData.material = material;
+        ringGroup.add(ring);
+        return ring;
+      });
+      objectGroup.add(ringGroup);
+
+      // Subtle Background Stars
+      const starGeometry = new THREE.BufferGeometry();
+      const starPositions = [];
+      for (let index = 0; index < 150; index += 1) {
+        const angle = index * 2.39996;
+        const radius = 3.4 + (index % 17) * .27;
+        starPositions.push(Math.cos(angle) * radius, Math.sin(angle * .7) * radius * .52, -2.5 - (index % 9) * .42);
+      }
+      starGeometry.setAttribute("position", new THREE.Float32BufferAttribute(starPositions, 3));
+      const stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({
+        color: 0x9cbcff,
+        transparent: true,
+        opacity: .2,
+        size: .018,
+        depthWrite: false,
+      }));
+      scene.add(stars);
+
+      // Mathematically perfect aligned equilateral wedges
+      const top = [0, 1.732];
+      const left = [-1.5, -0.866];
+      const right = [1.5, -0.866];
+      const center = [0, 0];
+
+      const people = makeFacetedWedge([left, center, top], [0x5C4616, 0x6E5523, 0x8A6D32, 0xB08D3F], 0xffe2a3);
+      const business = makeFacetedWedge([left, right, center], [0x161C24, 0x2A2F3A, 0x3D434F, 0x4A505C], 0xd0d5e0);
+      const customer = makeFacetedWedge([center, right, top], [0x10216B, 0x1E3BB3, 0x3355FF, 0x5C7CFF], 0xa3baff);
+      const wedges = [people, business, customer];
+      const prismGroup = new THREE.Group();
+      wedges.forEach(({ group }) => prismGroup.add(group));
+      prismGroup.position.y = -.12;
+      prismGroup.position.z = -.06;
+      objectGroup.add(prismGroup);
+
+      // Node Orbit path curves
+      const orbitPoints = [
+        new THREE.Vector3(0, 2.5, -.2),
+        new THREE.Vector3(1.85, 1.25, -.2),
+        new THREE.Vector3(2.65, -1.42, -.2),
+        new THREE.Vector3(1.82, -1.82, -.2),
+        new THREE.Vector3(-1.82, -1.82, -.2),
+        new THREE.Vector3(-2.65, -1.42, -.2),
+        new THREE.Vector3(-1.85, 1.25, -.2),
+      ];
+      const orbitCurve = new THREE.CatmullRomCurve3(orbitPoints, true, "centripetal", .26);
+      const sampledOrbit = orbitCurve.getPoints(280);
+      const orbitGeometry = new THREE.BufferGeometry().setFromPoints(sampledOrbit);
+      orbitGeometry.setDrawRange(0, 0);
+      const orbitMaterial = new THREE.LineBasicMaterial({ color: 0xdff5ff, transparent: true, opacity: .86 });
+      const orbit = new THREE.Line(orbitGeometry, orbitMaterial);
+      objectGroup.add(orbit);
+
+      const orbitTubeMaterial = new THREE.MeshBasicMaterial({ color: 0xb9dcf2, transparent: true, opacity: 0, depthWrite: false });
+      const orbitTube = new THREE.Mesh(new THREE.TubeGeometry(orbitCurve, 220, .012, 8, true), orbitTubeMaterial);
+      objectGroup.add(orbitTube);
+
+      const nodeMeshes = Array.from({ length: 9 }, (_, index) => {
+        const material = new THREE.MeshBasicMaterial({ color: 0xdff6ff, transparent: true, opacity: 0 });
+        const node = new THREE.Mesh(new THREE.SphereGeometry(.032, 16, 16), material);
+        node.position.copy(orbitCurve.getPointAt(index / 9));
+        node.scale.setScalar(.01);
+        objectGroup.add(node);
+        return { node, material };
+      });
+
+      const resize = () => {
+        const width = host.clientWidth;
+        const height = host.clientHeight;
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.position.z = width < 760 ? 13.3 : 12.4;
+        camera.updateProjectionMatrix();
+      };
+      window.addEventListener("resize", resize);
+      resize();
+
+      // Mouse Parallax drift setup
+      const pointerTarget = { x: 0, y: 0 };
+      const onPointerMove = (event) => {
+        pointerTarget.x = (event.clientX / window.innerWidth - .5) * 2;
+        pointerTarget.y = (event.clientY / window.innerHeight - .5) * 2;
+      };
+      window.addEventListener("pointermove", onPointerMove, { passive: true });
+
+      // Build main scroll animation trigger
+      const drawState = { count: 0 };
+      const timeline = gsap.timeline({
+        defaults: { ease: "power2.inOut" },
+        scrollTrigger: {
+          trigger: ".scroll-flow",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 1.25,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      timeline
+        .to(rings.map((ring) => ring.userData.material), { opacity: 0, duration: .6, stagger: .06 }, .6)
+        .to(shellMaterial, { opacity: .08, duration: .9 }, .8)
+        .to(coreGroup.scale, { x: .86, y: .86, z: .86, duration: 1.1 }, 1.2)
+        .to(coreGroup.scale, { x: .4, y: .4, z: .4, duration: 1.15 }, 2.2)
+        .to(glowSprite.material, { opacity: .34, duration: .9 }, 2.3)
+        .to(shellMaterial, { opacity: .05, duration: .9 }, 2.3)
+        .to(coreMaterial.color, { r: .96, g: .99, b: 1, duration: 1 }, 2.3)
+        .to(coreMaterial.emissive, { r: .02, g: .16, b: .25, duration: 1 }, 2.3)
+        .to(".core-badge", { autoAlpha: 1, filter: "blur(0px)", duration: .65 }, 2.7)
+        .to(people.materials, { opacity: .82, duration: .8 }, 3.0)
+        .to(people.edgeMaterials, { opacity: .22, duration: .75 }, 3.05)
+        .to(".label-people", { autoAlpha: 1, filter: "blur(0px)", duration: .55 }, 3.3)
+        .to(business.materials, { opacity: .8, duration: .8 }, 3.8)
+        .to(business.edgeMaterials, { opacity: .2, duration: .75 }, 3.85)
+        .to(".label-business", { autoAlpha: 1, filter: "blur(0px)", duration: .55 }, 4.1)
+        .to(customer.materials, { opacity: .82, duration: .8 }, 4.6)
+        .to(customer.edgeMaterials, { opacity: .24, duration: .75 }, 4.65)
+        .to(".label-customer", { autoAlpha: 1, filter: "blur(0px)", duration: .55 }, 4.9)
+        .to(modelGroup.rotation, { x: -.025, y: .035, z: 0, duration: 1.1 }, 5.3)
+        .to(drawState, { count: sampledOrbit.length, duration: 1.05, ease: "power1.inOut", onUpdate: () => orbitGeometry.setDrawRange(0, Math.round(drawState.count)) }, 5.5)
+        .to(orbitTubeMaterial, { opacity: .36, duration: .7 }, 6.2)
+        .to(".process-pill", { autoAlpha: 1, filter: "blur(0px)", duration: .65, stagger: .08 }, 5.9)
+        .set(nodeMeshes.map(({ node }) => node.scale), { x: 1, y: 1, z: 1 }, 6.5)
+        .to(nodeMeshes.map(({ material }) => material), { opacity: .24, duration: .5, stagger: .05 }, 6.5)
+        .to(".method-node", { autoAlpha: 1, filter: "blur(0px)", duration: .5, stagger: .05 }, 6.55)
+        .to(modelGroup.position, { x: () => window.innerWidth < 680 ? 0 : window.innerWidth < 1100 ? 1.05 : 1.65, duration: 1.25 }, 7.2)
+        .to(modelGroup.rotation, { y: -.045, x: -.02, duration: 1.25 }, 7.2)
+        .to(".scene-interface", { x: () => window.innerWidth < 680 ? 0 : window.innerWidth < 1100 ? 100 : Math.min(180, window.innerWidth * .18), duration: 1.25 }, 7.2)
+        .to(glowSprite.material, { opacity: .44, duration: 1.2 }, 7.2);
+
+      const startedAt = performance.now();
+      let frameId;
+      const render = () => {
+        const elapsed = (performance.now() - startedAt) / 1000;
+        parallaxGroup.rotation.y = THREE.MathUtils.lerp(parallaxGroup.rotation.y, pointerTarget.x * .035, .025);
+        parallaxGroup.rotation.x = THREE.MathUtils.lerp(parallaxGroup.rotation.x, -pointerTarget.y * .02, .025);
+        objectGroup.position.y = Math.sin(elapsed * .38) * .012;
+        ringGroup.rotation.z = elapsed * .006;
+        stars.rotation.z = elapsed * .002;
+        renderer.render(scene, camera);
+        frameId = requestAnimationFrame(render);
+      };
+      render();
+
+      function makeGlowTexture() {
+        const canvas = document.createElement("canvas");
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext("2d");
+        const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+        grad.addColorStop(0, "rgba(255, 255, 255, 1)");
+        grad.addColorStop(0.16, "rgba(102, 178, 255, 0.44)");
+        grad.addColorStop(0.48, "rgba(51, 85, 255, 0.08)");
+        grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 128, 128);
+        return new THREE.CanvasTexture(canvas);
+      }
+
+      function makeGlassFacet(points, color, edgeColor) {
+        const shape = new THREE.Shape();
+        shape.moveTo(points[0][0], points[0][1]);
+        points.slice(1).forEach(([x, y]) => shape.lineTo(x, y));
+        shape.closePath();
+
+        const depth = .25;
+        const geometry = new THREE.ExtrudeGeometry(shape, {
+          depth,
+          bevelEnabled: true,
+          bevelSegments: 4,
+          bevelSize: .022,
+          bevelThickness: .028,
+        });
+        geometry.translate(0, 0, -depth / 2);
+
+        const material = new THREE.MeshPhysicalMaterial({
+          color,
+          transparent: true,
+          opacity: 0,
+          roughness: .08,
+          metalness: .05,
+          transmission: .28,
+          thickness: .5,
+          ior: 1.45,
+          iridescence: 0.9,
+          iridescenceIOR: 1.32,
+          iridescenceThicknessRange: [150, 400],
+          clearcoat: 1,
+          clearcoatRoughness: .03,
+          specularIntensity: .95,
+          side: THREE.DoubleSide,
+          depthWrite: false,
+        });
+        const edgeMaterial = new THREE.LineBasicMaterial({
+          color: edgeColor,
+          transparent: true,
+          opacity: 0,
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
+        const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 20), edgeMaterial);
+        const group = new THREE.Group();
+        group.add(mesh, edges);
+        return { group, material, edgeMaterial };
+      }
+
+      function makeFacetedWedge(points, palette, edgeColor) {
+        const color = palette[2] || palette[0];
+        const facet = makeGlassFacet(points, color, edgeColor);
+        const group = new THREE.Group();
+        group.add(facet.group);
+        group.scale.setScalar(.85);
+        return {
+          group,
+          facets: [facet],
+          materials: [facet.material],
+          edgeMaterials: [facet.edgeMaterial],
+        };
+      }
+
+      return () => {
+        cancelAnimationFrame(frameId);
+        window.removeEventListener("resize", resize);
+        window.removeEventListener("pointermove", onPointerMove);
+        scene.traverse((object) => {
+          object.geometry?.dispose?.();
+          if (Array.isArray(object.material)) object.material.forEach((material) => material.dispose());
+          else object.material?.dispose?.();
+        });
+        glowTexture.dispose();
+        renderer.dispose();
+        renderer.domElement.remove();
+      };
+    }
+
+    // Theme toggler action
+    function toggleTheme() {
+      isLightMode = !isLightMode;
+      const toggleBtn = document.querySelector(".theme-toggle");
+      
+      if (isLightMode) {
+        document.documentElement.classList.remove("dark-mode");
+        document.documentElement.classList.add("light-mode");
+        if (toggleBtn) toggleBtn.textContent = "☽ Dark";
+      } else {
+        document.documentElement.classList.remove("light-mode");
+        document.documentElement.classList.add("dark-mode");
+        if (toggleBtn) toggleBtn.textContent = "☉ Light";
+      }
+
+      // Re-initialize WebGL canvases with new theme lighting colors
+      if (fluidDisposer) fluidDisposer();
+      if (prismDisposer) prismDisposer();
+
+      fluidDisposer = initFluidCanvas(isLightMode);
+      prismDisposer = initValuePrismStage(isLightMode);
+    }
+
+    // Scroll helper
+    function jumpTo(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  </script>
+</body>
+</html>
